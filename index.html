@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="bg"></canvas>
+
+    <nav class="dots">
+      <a href="#hero" data-target="hero"></a>
+      <a href="#about" data-target="about"></a>
+      <a href="#skills" data-target="skills"></a>
+      <a href="#work" data-target="work"></a>
+      <a href="#contact" data-target="contact"></a>
+    </nav>
+
+    <main>
+      <section id="hero" data-spin="hero">
+        <p class="eyebrow">Portfolio</p>
+        <h1>Your Name</h1>
+        <p class="tagline">Developer · Designer · Builder</p>
+      </section>
+
+      <section id="about" data-spin="about">
+        <h2>About</h2>
+        <p>Short intro about you goes here. Talk about what you do, what you care about, and what you're building right now.</p>
+      </section>
+
+      <section id="skills" data-spin="skills">
+        <h2>Skills</h2>
+        <ul class="skills-grid">
+          <li>JavaScript</li>
+          <li>Three.js</li>
+          <li>React</li>
+          <li>Node.js</li>
+          <li>Python</li>
+          <li>UI / UX</li>
+        </ul>
+      </section>
+
+      <section id="work" data-spin="work">
+        <h2>Work</h2>
+        <ul class="projects">
+          <li><h3>Project One</h3><p>One-line description.</p></li>
+          <li><h3>Project Two</h3><p>One-line description.</p></li>
+          <li><h3>Project Three</h3><p>One-line description.</p></li>
+        </ul>
+      </section>
+
+      <section id="contact" data-spin="contact">
+        <h2>Contact</h2>
+        <p><a href="mailto:you@example.com">you@example.com</a></p>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
