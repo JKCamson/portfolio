@@ -1,0 +1,19 @@
+#hero .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+#hero h1 {
+  font-size: clamp(2.5rem, 8vw, 5.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+#hero .tagline {
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: 1.1rem;
+}

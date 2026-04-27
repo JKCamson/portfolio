@@ -1,0 +1,39 @@
+#bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+}
+
+main, .dots { position: relative; z-index: 1; }
+
+main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+section {
+  min-height: 180vh;
+  padding: 10rem 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+section.pending {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.01em;
+}

@@ -1,0 +1,10 @@
+.projects { list-style: none; display: grid; gap: 1.25rem; }
+.projects li {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+.projects h3 { margin-bottom: 0.5rem; }
+.projects p { color: var(--muted); }
