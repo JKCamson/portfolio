@@ -1,4 +1,16 @@
 import * as THREE from 'three';
+import {
+  SECTIONS,
+  SECTION_ORDER,
+  PLANET_SPACING_Z,
+  AXIAL_TILT_RAD,
+  FAST_SCROLL_WINDOW_MS,
+  FAST_SCROLL_SPEEDUP,
+  PAN_OUT_DURATION,
+  PAN_IN_DURATION,
+  ZOOM_OUT_DURATION,
+  JUMP_OUT_DURATION,
+} from './three/config.js';
 
 const canvas = document.querySelector('#bg');
 
@@ -26,40 +38,6 @@ scene.add(sunLight);
 const fillLight = new THREE.PointLight(0x7c8cff, 18, 30);
 fillLight.position.set(-5, -2, 3);
 scene.add(fillLight);
-
-// Per-section: planet config + texture path. Solid color shows briefly until the
-// texture loads, then the sphere upgrades in place.
-const SECTIONS = {
-  hero: {
-    radius: 1.7, color: 0x4166f5, emissive: 0x081330, emissiveIntensity: 0.1,
-    roughness: 0.7, metalness: 0.05, spin: [0, 0.3, 0],
-    texturePath: '/assets/planets/neptune.jpg',
-  },
-  about: {
-    radius: 1.5, color: 0x3a7bd5, emissive: 0x07254a, emissiveIntensity: 0.15,
-    roughness: 0.55, metalness: 0.05, spin: [0, 0.5, 0],
-    texturePath: '/assets/planets/earth.jpg',
-  },
-  skills: {
-    radius: 1.4, color: 0xc1440e, emissive: 0x000000, emissiveIntensity: 0,
-    roughness: 0.9, metalness: 0.0, spin: [0, 0.45, 0],
-    texturePath: '/assets/planets/mars.jpg',
-  },
-  work: {
-    radius: 1.85, color: 0xd1a36b, emissive: 0x000000, emissiveIntensity: 0,
-    roughness: 0.7, metalness: 0.0, spin: [0, 0.3, 0],
-    texturePath: '/assets/planets/jupiter.jpg',
-  },
-  contact: {
-    radius: 1.5, color: 0xe8d4a3, emissive: 0x000000, emissiveIntensity: 0,
-    roughness: 0.7, metalness: 0.0, spin: [0, 0.35, 0],
-    ring: {
-      inner: 1.9, outer: 2.8, color: 0xc9b48a, opacity: 0.75, tilt: 0.45,
-      texturePath: '/assets/planets/saturn_ring.png',
-    },
-    texturePath: '/assets/planets/saturn.jpg',
-  },
-};
 
 // === Texture cache ===
 const textures = {}; // { sectionName: { sphere?, ring? } }
@@ -162,11 +140,7 @@ function applyRingTextureToPlanet(planet, ringCfg, tex) {
   });
 }
 
-const SECTION_ORDER = ['hero', 'about', 'skills', 'work', 'contact'];
-
 // === Planets rail (all planets exist at once) ===
-const PLANET_SPACING_Z = 18;
-const AXIAL_TILT_RAD = THREE.MathUtils.degToRad(23.5);
 const planetsRail = new THREE.Group();
 scene.add(planetsRail);
 
@@ -197,25 +171,7 @@ for (const [name, cfg] of Object.entries(SECTIONS)) {
   }
 }
 
-// === Per-section rotation (no spring) ===
-const restingSpin = new THREE.Vector3(0, 0.3, 0);
-
 // === Direction-aware transition state ===
-// Forward (next section) → lateral pan, alternating left/right.
-// Backward (previous section / back to top) → zoom out far, new planet emerges from depth.
-const ZOOM_AWAY_Z = -25;       // far away when receding
-
-const PAN_OUT_DURATION = 0.5;
-const PAN_IN_DURATION = 0.6;
-const ZOOM_OUT_DURATION = 0.35;
-const ZOOM_IN_DURATION = 0.35;
-const JUMP_THROUGH_Z = 2;      // how far past the camera to fly (added to camera.position.z)
-const JUMP_IN_FROM_Z = -12;    // where the next planet starts (depth) before zooming in
-const JUMP_OUT_DURATION = 0.22;
-const JUMP_IN_DURATION = 0.4;
-const FAST_SCROLL_WINDOW_MS = 250;
-const FAST_SCROLL_SPEEDUP = 0.65; // smaller = faster transitions during rapid scroll
-
 let transitionState = 'idle'; // 'idle' | 'out' | 'in'
 let transitionT = 0;
 let pendingSection = null;
