@@ -11,6 +11,21 @@ import { setPlanetsRail } from './three/transitions.js';
 import { initSectionObserver } from './dom/sectionObserver.js';
 import { startRenderLoop } from './three/loop.js';
 import * as THREE from 'three';
+import { Nav } from './components/Nav.js';
+import { Hero } from './components/Hero.js';
+import { About } from './components/About.js';
+import { Skills } from './components/Skills.js';
+import { Work } from './components/Work.js';
+import { Contact } from './components/Contact.js';
+
+document.querySelector('#nav-mount').innerHTML = Nav();
+document.querySelector('#app').innerHTML = [
+  Hero(),
+  About(),
+  Skills(),
+  Work(),
+  Contact(),
+].join('');
 
 // Build the rail of planets (all planets exist at once, spaced along Z).
 const planetsRail = new THREE.Group();
