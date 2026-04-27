@@ -1,12 +1,6 @@
-import * as THREE from 'three';
-import {
-  SECTIONS,
-  SECTION_ORDER,
-  PLANET_SPACING_Z,
-  AXIAL_TILT_RAD,
-} from './three/config.js';
-import { scene, camera, renderer, attachResizeHandler } from './three/scene.js';
-import { textures, ensureEntry, loadTexture } from './three/textures.js';
+import { scene, attachResizeHandler } from './three/scene.js';
+import { SECTIONS, SECTION_ORDER, PLANET_SPACING_Z, AXIAL_TILT_RAD } from './three/config.js';
+import { ensureEntry, loadTexture } from './three/textures.js';
 import {
   buildPlanet,
   applySphereTextureToPlanet,
@@ -16,11 +10,11 @@ import { createStarfield } from './three/starfield.js';
 import { setPlanetsRail } from './three/transitions.js';
 import { initSectionObserver } from './dom/sectionObserver.js';
 import { startRenderLoop } from './three/loop.js';
+import * as THREE from 'three';
 
-// === Planets rail (all planets exist at once) ===
+// Build the rail of planets (all planets exist at once, spaced along Z).
 const planetsRail = new THREE.Group();
 scene.add(planetsRail);
-setPlanetsRail(planetsRail);
 
 const planetsBySection = {};
 for (let i = 0; i < SECTION_ORDER.length; i++) {
@@ -51,6 +45,7 @@ for (const [name, cfg] of Object.entries(SECTIONS)) {
 const stars = createStarfield();
 scene.add(stars);
 
+setPlanetsRail(planetsRail);
 attachResizeHandler();
 initSectionObserver();
 startRenderLoop({ planetsBySection, stars });
