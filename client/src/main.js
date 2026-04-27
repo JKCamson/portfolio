@@ -12,24 +12,7 @@ import {
   JUMP_OUT_DURATION,
 } from './three/config.js';
 import { scene, camera, renderer, attachResizeHandler } from './three/scene.js';
-
-// === Texture cache ===
-const textures = {}; // { sectionName: { sphere?, ring? } }
-function ensureEntry(name) {
-  if (!textures[name]) textures[name] = {};
-  return textures[name];
-}
-
-const textureLoader = new THREE.TextureLoader();
-
-function loadTexture(path, onSuccess) {
-  textureLoader.load(
-    path,
-    (tex) => { tex.colorSpace = THREE.SRGBColorSpace; onSuccess(tex); },
-    undefined,
-    () => { /* missing — keep solid color */ }
-  );
-}
+import { textures, ensureEntry, loadTexture } from './three/textures.js';
 
 // === Planet construction ===
 
