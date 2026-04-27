@@ -16,10 +16,8 @@ import { createStarfield } from './three/starfield.js';
 import {
   setSection,
   setPlanetsRail,
-  getCurrentSectionName,
-  restingSpin,
-  updateTransition,
 } from './three/transitions.js';
+import { startRenderLoop } from './three/loop.js';
 
 // === Planets rail (all planets exist at once) ===
 const planetsRail = new THREE.Group();
@@ -75,26 +73,4 @@ const observer = new IntersectionObserver((entries) => {
 sections.forEach((s) => observer.observe(s));
 
 attachResizeHandler();
-
-// === Render loop ===
-const clock = new THREE.Clock();
-
-function animate() {
-  const dt = Math.min(clock.getDelta(), 0.05);
-
-  const activePlanet = planetsBySection[getCurrentSectionName()];
-  if (activePlanet) {
-    activePlanet.rotation.x += restingSpin.x * dt;
-    activePlanet.rotation.y += restingSpin.y * dt;
-    activePlanet.rotation.z += restingSpin.z * dt;
-  }
-
-  updateTransition(dt);
-
-  stars.rotation.y += dt * 0.02;
-
-  renderer.render(scene, camera);
-  requestAnimationFrame(animate);
-}
-
-animate();
+startRenderLoop({ planetsBySection, stars });
