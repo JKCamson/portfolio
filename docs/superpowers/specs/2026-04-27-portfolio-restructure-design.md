@@ -157,7 +157,7 @@ Plain-DOM behavior, no Three.js. Currently just `sectionObserver.js`, which wire
 @import "./partials/badge.css";
 ```
 
-Empty CSS files for partials that don't yet have styles are acceptable (placeholder), or the partial files can be added only when first needed. Default: only create CSS files for partials that ship with non-empty styles.
+Only create a CSS file for a partial when it actually has styles. Don't create empty placeholders — keep `styles/partials/` and the `@import` list short and accurate.
 
 ## `index.html`
 
@@ -237,7 +237,7 @@ After each step and at the end:
 
 - `npm run dev` from repo root starts the Vite dev server.
 - Page loads, planets render, scroll transitions work, fast-scroll and back-scroll behave as documented in `CLAUDE.md`.
-- All five planets visible across sections, ring texture on Saturn applies correctly.
+- All five planets exist on the Z-rail (active one at z=0, others receding into depth) and the ring texture on Saturn applies correctly.
 - No console errors.
 
 ## Risks / Trade-offs
