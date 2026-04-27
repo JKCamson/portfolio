@@ -13,10 +13,8 @@ import {
   applyRingTextureToPlanet,
 } from './three/planets.js';
 import { createStarfield } from './three/starfield.js';
-import {
-  setSection,
-  setPlanetsRail,
-} from './three/transitions.js';
+import { setPlanetsRail } from './three/transitions.js';
+import { initSectionObserver } from './dom/sectionObserver.js';
 import { startRenderLoop } from './three/loop.js';
 
 // === Planets rail (all planets exist at once) ===
@@ -53,24 +51,6 @@ for (const [name, cfg] of Object.entries(SECTIONS)) {
 const stars = createStarfield();
 scene.add(stars);
 
-// === Section observer ===
-const sections = document.querySelectorAll('section[data-spin]');
-const dots = document.querySelectorAll('.dots a');
-
-sections.forEach((s, i) => { if (i > 0) s.classList.add('pending'); });
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.remove('pending');
-      const name = entry.target.dataset.spin;
-      setSection(name);
-      dots.forEach((d) => d.classList.toggle('active', d.dataset.target === name));
-    }
-  });
-}, { threshold: 0.4 });
-
-sections.forEach((s) => observer.observe(s));
-
 attachResizeHandler();
+initSectionObserver();
 startRenderLoop({ planetsBySection, stars });
