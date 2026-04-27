@@ -34,3 +34,24 @@ This file summarizes the changes made during the latest iteration on the Three.j
 - **Longer scroll sections**: increased per-section vertical space so the IntersectionObserver doesn’t advance multiple sections too easily.
   - `section { min-height: 180vh; padding: 10rem 0; }`
 
+## Project structure (added 2026-04-27)
+
+The repo is split into `client/` (frontend) and `server/` (placeholder
+for future backend). Inside `client/src/`:
+
+- `main.js` — thin orchestrator: mounts components, builds rail, starts loop.
+- `three/` — Three.js scene logic, split by responsibility:
+  - `config.js` — `SECTIONS`, ordering, and timing constants.
+  - `scene.js` — scene, camera, renderer, lights, resize handler.
+  - `textures.js` — texture cache + loader.
+  - `planets.js` — `buildPlanet`, ring helpers, texture appliers.
+  - `starfield.js` — starfield generator.
+  - `transitions.js` — rail-based transition state machine (`setSection`, `updateTransition`).
+  - `loop.js` — render loop.
+- `components/` — page sections as JS template functions returning HTML strings.
+- `partials/` — small reusable HTML atoms (buttons, cards, badges).
+- `dom/` — DOM-only behavior (no Three.js, no markup); currently `sectionObserver.js`.
+- `styles/` — CSS split per concern; `main.css` aggregates the rest.
+- `utils/`, `pages/` — placeholders documented in their READMEs.
+
+Design doc: `docs/superpowers/specs/2026-04-27-portfolio-restructure-design.md`.
