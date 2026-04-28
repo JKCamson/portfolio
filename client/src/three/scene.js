@@ -1,31 +1,29 @@
 import * as THREE from 'three';
+import { CAMERA_START_Z, SUN_POSITION } from './config.js';
 
 const canvas = document.querySelector('#bg');
 
 export const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x0a0a0f, 12, 28);
+scene.fog = new THREE.FogExp2(0x05020a, 0.0008);
 
 export const camera = new THREE.PerspectiveCamera(
   60,
   window.innerWidth / window.innerHeight,
   0.1,
-  100
+  5000
 );
-camera.position.set(0, 0, 6);
+camera.position.set(0, 0, CAMERA_START_Z);
 
-export const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+export const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x02030a, 1);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-// Lights — neutral key + soft fill
-scene.add(new THREE.AmbientLight(0xffffff, 0.45));
-const sunLight = new THREE.DirectionalLight(0xffffff, 1.6);
-sunLight.position.set(5, 3, 4);
+scene.add(new THREE.AmbientLight(0x222244, 0.55));
+const sunLight = new THREE.PointLight(0xffd599, 4.5, 3000, 1.4);
+sunLight.position.copy(SUN_POSITION);
 scene.add(sunLight);
-const fillLight = new THREE.PointLight(0x7c8cff, 18, 30);
-fillLight.position.set(-5, -2, 3);
-scene.add(fillLight);
 
 export function attachResizeHandler() {
   window.addEventListener('resize', () => {

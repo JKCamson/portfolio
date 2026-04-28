@@ -55,3 +55,46 @@ for future backend). Inside `client/src/`:
 - `utils/`, `pages/` — placeholders documented in their READMEs.
 
 Design doc: `docs/superpowers/specs/2026-04-27-portfolio-restructure-design.md`.
+
+When writing or modifying code in this repo, follow the conventions in
+`AGENTS.md` at the repo root.
+
+## Planned features (roadmap)
+
+Not yet built — captured here so future iterations have context. Each
+will get its own design + plan when picked up.
+
+### Contact & Communication
+- Contact form that emails the owner directly.
+- Auto-reply to people who message in.
+- Spam protection: rate limiting + captcha verification.
+
+### Blog / Writing
+- Posts authored in markdown, served via API.
+- Draft / publish workflow so posts aren't live until ready.
+- Tags, categories, search.
+
+### Projects showcase
+- Project data (title, description, tech stack, links, screenshots) in
+  a database instead of hardcoded in `components/Work.js`.
+- Add / update projects from a CMS without touching code.
+- Filter by technology or category.
+
+### Project links — possible approaches (pick per project)
+- **Direct link** to the live deployed project (simplest, no backend).
+- **GitHub repo link** so visitors can browse the code.
+- **Embedded preview** — iframe inside the portfolio.
+- **Screenshot / video + link** — backend serves the media, frontend displays it.
+- **Password-protected demos** — backend verifies password before showing.
+
+### Analytics & tracking
+- Count profile views and project clicks.
+- See which projects get the most attention.
+- Self-hosted (no Google Analytics).
+
+### Auth (only if needed)
+- Admin login so only the owner can add / edit projects.
+- Protect specific pages or admin routes.
+
+Most of these require the `server/` half of the repo. When work begins,
+scaffold `server/` per its README and update root `package.json` scripts.

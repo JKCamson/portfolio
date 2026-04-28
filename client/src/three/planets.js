@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { SECTIONS } from './config.js';
 import { textures } from './textures.js';
+import { getSharedGlowTexture } from './sun.js';
 
 function remapRingUVs(geom, inner, outer) {
   const pos = geom.attributes.position;
@@ -16,7 +17,6 @@ function remapRingUVs(geom, inner, outer) {
 
 function addRingTo(group, ringCfg, ringTex) {
   const geom = new THREE.RingGeometry(ringCfg.inner, ringCfg.outer, 128);
-  // Always remap UVs: ring textures load async, so the mesh is often created before the map exists.
   remapRingUVs(geom, ringCfg.inner, ringCfg.outer);
   const mat = new THREE.MeshBasicMaterial({
     map: ringTex || null,
@@ -32,11 +32,25 @@ function addRingTo(group, ringCfg, ringTex) {
   group.add(ring);
 }
 
+function addHaloTo(group, cfg) {
+  const haloMat = new THREE.SpriteMaterial({
+    map: getSharedGlowTexture(),
+    color: cfg.haloColor,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    opacity: cfg.haloOpacity,
+  });
+  const halo = new THREE.Sprite(haloMat);
+  const haloScale = cfg.radius * 4;
+  halo.scale.set(haloScale, haloScale, 1);
+  group.add(halo);
+}
+
 export function buildPlanet(name) {
   const cfg = SECTIONS[name];
   const tex = textures[name] || {};
   const group = new THREE.Group();
-
   group.name = `planet:${name}`;
 
   const sphereMat = new THREE.MeshStandardMaterial({
@@ -52,11 +66,14 @@ export function buildPlanet(name) {
     sphereMat
   );
   sphere.userData.sphereMat = sphereMat;
+  sphere.rotation.z = (Math.random() - 0.5) * 0.6;
   group.add(sphere);
+
+  addHaloTo(group, cfg);
 
   if (cfg.ring) addRingTo(group, cfg.ring, tex.ring);
 
-  return group;
+  return { group, mesh: sphere };
 }
 
 export function applySphereTextureToPlanet(planet, cfg, tex) {

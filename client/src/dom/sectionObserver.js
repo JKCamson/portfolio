@@ -1,5 +1,3 @@
-import { setSection } from '../three/transitions.js';
-
 export function initSectionObserver() {
   const sections = document.querySelectorAll('section[data-spin]');
   const dots = document.querySelectorAll('.dots a');
@@ -11,7 +9,6 @@ export function initSectionObserver() {
       if (entry.isIntersecting) {
         entry.target.classList.remove('pending');
         const name = entry.target.dataset.spin;
-        setSection(name);
         dots.forEach((d) => d.classList.toggle('active', d.dataset.target === name));
       }
     });

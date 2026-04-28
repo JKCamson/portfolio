@@ -10,30 +10,65 @@
 
 main, .dots { position: relative; z-index: 1; }
 
-main {
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
+main { width: 100%; }
 
-section {
-  min-height: 180vh;
-  padding: 10rem 0;
+.section {
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  align-items: center;
+  padding: 0 3rem;
   opacity: 1;
   transform: translateY(0);
   transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
-section.pending {
+.section.pending {
   opacity: 0;
   transform: translateY(24px);
 }
 
+.section--centered {
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  padding: 0 2rem;
+}
+
+.section--left {
+  justify-content: flex-start;
+  padding-left: 4rem;
+  padding-right: 3rem;
+}
+
+.section--right {
+  justify-content: flex-end;
+  padding-left: 3rem;
+  padding-right: 4rem;
+}
+
+@media (min-width: 768px) {
+  .section--left  { padding-left: 5rem; }
+  .section--right { padding-right: 5rem; }
+}
+
+.eyebrow {
+  font-size: 0.625rem;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 1.25rem;
+}
+
+h1 {
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
 h2 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  font-weight: 300;
+  line-height: 1.1;
   letter-spacing: -0.01em;
 }

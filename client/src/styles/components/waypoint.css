@@ -1,0 +1,24 @@
+.waypoint {
+  max-width: 28rem;
+}
+
+.waypoint .eyebrow {
+  margin-bottom: 0.75rem;
+  font-size: 0.625rem;
+  letter-spacing: 0.4em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.waypoint .divider {
+  height: 1px;
+  width: 4rem;
+  background: rgba(255, 255, 255, 0.3);
+  margin: 1.5rem 0;
+}
+
+.waypoint > p,
+.waypoint > div + p {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
