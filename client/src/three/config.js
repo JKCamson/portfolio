@@ -68,3 +68,9 @@ export const SUN_POSITION = new THREE.Vector3(0, 0, -650 / 14);
 export const SUN_RADIUS = 90 / 14;
 export const SUN_GLOW_SCALE = 520 / 14;
 export const SUN_CORONA_SCALE = 820 / 14;
+export const SUN_TEXTURE_PATH = '/assets/planets/sun.jpg';
+
+// Skybox (Milky Way backdrop behind the procedural starfield)
+export const MILKYWAY_TEXTURE_PATH = '/assets/planets/stars_milkyway.jpg';
+export const SKYBOX_RADIUS = 200;
+export const SKYBOX_OPACITY = 0.45;

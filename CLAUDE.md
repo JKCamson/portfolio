@@ -1,70 +1,126 @@
-# Project updates (2026-04-25)
+# Portfolio — project notes
 
-This file summarizes the changes made during the latest iteration on the Three.js portfolio background + scroll transitions.
-
-## Planet scene + loading
-
-- **Preload all planet textures**: texture loads are started in parallel and cached, then applied to existing meshes when they arrive.
-- **All planets exist in the scene at once**: planets are created once at startup and placed along a Z “rail” so they can be seen in the distance.
-  - `planetsRail` holds every `planet:<section>` group.
-  - Spacing is controlled by `PLANET_SPACING_Z`.
-- **No per-section rebuild/dispose**: removed the previous approach that removed/created meshes per section change.
-
-## Transitions + fast scroll behavior
-
-- **No lateral panning**: section transitions are depth/rail-based (no X pan).
-- **No skipping planets**: rapid scroll uses a `sectionQueue` so moving from `hero` → `work` will traverse `about` → `skills` → `work`.
-- **Keeps up with fast scrolling**:
-  - Requests within `FAST_SCROLL_WINDOW_MS` apply a `FAST_SCROLL_SPEEDUP` multiplier to shorten durations.
-- **Removed “springy” overshoot**:
-  - Removed the overshoot component and simplified the transition to a single move to the target rail position.
-
-## Rotation changes
-
-- **Removed spring rotation**: replaced spring physics with direct per-section spin using `restingSpin`.
-- **Axial tilt**: each planet is created with a constant axial tilt:
-  - `AXIAL_TILT_RAD = degToRad(23.5)`
-
-## Ring texture fix (Saturn ring)
-
-- **Fixed ring UVs applying too late**: ring UV remapping now runs unconditionally when the ring geometry is created (textures load asynchronously).
-
-## Scroll smoothing (HTML/CSS)
-
-- **Longer scroll sections**: increased per-section vertical space so the IntersectionObserver doesn’t advance multiple sections too easily.
-  - `section { min-height: 180vh; padding: 10rem 0; }`
-
-## Project structure (added 2026-04-27)
-
-The repo is split into `client/` (frontend) and `server/` (placeholder
-for future backend). Inside `client/src/`:
-
-- `main.js` — thin orchestrator: mounts components, builds rail, starts loop.
-- `three/` — Three.js scene logic, split by responsibility:
-  - `config.js` — `SECTIONS`, ordering, and timing constants.
-  - `scene.js` — scene, camera, renderer, lights, resize handler.
-  - `textures.js` — texture cache + loader.
-  - `planets.js` — `buildPlanet`, ring helpers, texture appliers.
-  - `starfield.js` — starfield generator.
-  - `transitions.js` — rail-based transition state machine (`setSection`, `updateTransition`).
-  - `loop.js` — render loop.
-- `components/` — page sections as JS template functions returning HTML strings.
-- `partials/` — small reusable HTML atoms (buttons, cards, badges).
-- `dom/` — DOM-only behavior (no Three.js, no markup); currently `sectionObserver.js`.
-- `styles/` — CSS split per concern; `main.css` aggregates the rest.
-- `utils/`, `pages/` — placeholders documented in their READMEs.
-
-Design doc: `docs/superpowers/specs/2026-04-27-portfolio-restructure-design.md`.
+Three.js + Vite + vanilla JS portfolio site with a scroll-driven space
+scene. Backend (`server/`) is empty for now and will host the contact
+form (next feature — see "Currently building" below).
 
 When writing or modifying code in this repo, follow the conventions in
 `AGENTS.md` at the repo root.
+
+---
+
+## Current scene (as of 2026-04-28)
+
+**Continuous scroll-driven camera sweep through scattered planets toward
+a distant sun.** Replaces the earlier rail-jump model entirely.
+
+### Planets
+- Five planets at fixed `(x, y, z)` offsets in world space (defined in
+  `client/src/three/config.js` `SECTIONS`). One planet per section:
+  hero=Neptune, about=Earth, skills=Mars, work=Jupiter, contact=Saturn.
+- Each planet has its real `.jpg` texture loaded async (textures live in
+  `client/public/assets/planets/`).
+- Each planet gets a colored atmosphere halo (additive sprite using a
+  shared canvas-generated radial-gradient texture).
+- Saturn keeps its `saturn_ring.png` ring with UV-remapped geometry.
+- Per-planet `rotSpeed` (range 0.003–0.007) drives Y-axis rotation in
+  the render loop.
+
+### Sun
+- Centered backdrop at `(0, 0, -650/14)`. Textured with `sun.jpg`.
+- Glow + corona sprites with additive blending pulse on `sin(time)`.
+- Glow opacity ramps with scroll proximity (0.85 → 1.0).
+- Single `THREE.PointLight` at the sun's position is the scene's only
+  directional light (plus dim ambient).
+
+### Backdrop
+- 3500-point procedural starfield in a sphere-shell distribution with
+  subtle blue/yellow vertex tints.
+- 600-point nebula dust with warm/cool additive blending,
+  counter-rotating.
+- `stars_milkyway.jpg` skybox sphere at radius 200, `BackSide`,
+  opacity 0.45 — sits behind the procedural points for depth.
+
+### Camera
+- Sweeps Z from `+25` (start of page) to `-39` (end of page), driven by
+  smoothed window scroll (`scroll.js#getSmoothedScroll`, lerp 0.07).
+- Floats organically on `sin(time)*0.4` / `cos(time*0.7)*0.3` for a
+  hand-held feel.
+- Always looks at the sun's z position.
+
+### HTML / sections
+- Five `<section>` blocks: `hero`, `about`, `skills`, `work`, `contact`.
+- Each section uses one of three layout modifiers: `.section--centered`
+  (hero, contact) or `.section--left` / `.section--right` (about,
+  skills, work). The left/right side is opposite the planet's
+  screen-space position so the content doesn't overlap the planet.
+- Each waypoint section uses the pattern: small uppercase eyebrow → light-weight heading → thin divider → body. Defined by `.waypoint` and
+  related rules in `client/src/styles/components/waypoint.css`.
+- Hero ends with a pulsing `↓ SCROLL ↓` cue.
+- Right-side dot navigation highlights the active section as you scroll
+  (the `IntersectionObserver` in `dom/sectionObserver.js`); clicking a
+  dot is a plain anchor scroll.
+
+Design doc for this scene: `docs/superpowers/specs/2026-04-28-scene-redesign-design.md`.
+Plan: `docs/superpowers/plans/2026-04-28-scene-redesign.md`.
+
+---
+
+## Project structure
+
+Repo is split into `client/` (frontend) and `server/` (backend
+placeholder). Inside `client/src/`:
+
+- `main.js` — thin orchestrator: mounts components, creates planets / sun
+  / skybox / stars / dust, kicks off texture loads, starts the render
+  loop.
+- `three/` — Three.js scene logic, split by responsibility:
+  - `config.js` — `SECTIONS`, `SECTION_ORDER`, camera sweep range, sun
+    + skybox constants, texture paths.
+  - `scene.js` — scene, camera, renderer, lights, fog, resize handler.
+  - `textures.js` — texture cache + async loader.
+  - `planets.js` — `buildPlanet`, ring helpers, halo, texture appliers.
+  - `sun.js` — `createSun`, `applySunTexture`, shared glow texture.
+  - `skybox.js` — Milky Way backdrop sphere.
+  - `starfield.js` — sphere-shell procedural points.
+  - `dust.js` — additive nebula dust.
+  - `scroll.js` — smoothed window scroll progress (`0..1`).
+  - `loop.js` — render loop.
+- `components/` — page sections as JS template functions returning HTML
+  strings (`Hero.js`, `About.js`, `Skills.js`, `Work.js`, `Contact.js`,
+  `Nav.js`).
+- `partials/` — small reusable HTML atoms (buttons, cards, badges).
+  Empty for now; documented in its README.
+- `dom/` — DOM-only behavior (no Three.js, no markup); currently
+  `sectionObserver.js` for dot active-state and section fade-in.
+- `styles/` — CSS split per concern: `base.css` (vars, reset,
+  scrollbar), `layout.css` (sections, modifiers, headings), `nav.css`
+  (dots), `components/{hero,skills,projects,contact,waypoint}.css`.
+  `main.css` aggregates everything via `@import`.
+- `utils/`, `pages/` — placeholders documented in their READMEs.
+
+Original restructure design (folder layout): `docs/superpowers/specs/2026-04-27-portfolio-restructure-design.md`.
+
+---
+
+## Currently building
+
+**Contact form (server-side).** Starting next: scaffold `server/` and
+add a `POST /api/contact` endpoint that receives the form, sends an
+email to the owner, and replies to the sender. Spam protection (rate
+limit + captcha) included. The frontend `Contact` component will swap
+its `mailto:` heading for a real form once the endpoint exists.
+
+Spec / plan to be written when work begins.
+
+---
 
 ## Planned features (roadmap)
 
 Not yet built — captured here so future iterations have context. Each
 will get its own design + plan when picked up.
 
-### Contact & Communication
+### Contact & Communication ← **starting now**
 - Contact form that emails the owner directly.
 - Auto-reply to people who message in.
 - Spam protection: rate limiting + captcha verification.
@@ -96,5 +152,6 @@ will get its own design + plan when picked up.
 - Admin login so only the owner can add / edit projects.
 - Protect specific pages or admin routes.
 
-Most of these require the `server/` half of the repo. When work begins,
-scaffold `server/` per its README and update root `package.json` scripts.
+Most of these require the `server/` half of the repo. The contact form
+will set up the patterns (server scaffold, env-var handling, deploy
+target) that the rest of these reuse.

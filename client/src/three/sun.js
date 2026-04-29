@@ -25,9 +25,10 @@ export function createSun({ position, radius, glowScale, coronaScale }) {
   const group = new THREE.Group();
   group.position.copy(position);
 
+  const coreMat = new THREE.MeshBasicMaterial({ color: 0xffd07a });
   const sphere = new THREE.Mesh(
     new THREE.SphereGeometry(radius, 64, 64),
-    new THREE.MeshBasicMaterial({ color: 0xffd07a })
+    coreMat
   );
   group.add(sphere);
 
@@ -54,5 +55,12 @@ export function createSun({ position, radius, glowScale, coronaScale }) {
   corona.scale.set(coronaScale, coronaScale, 1);
   group.add(corona);
 
-  return { group, glow, corona, glowMat };
+  return { group, glow, corona, glowMat, coreMat };
+}
+
+export function applySunTexture(sun, tex) {
+  if (!sun?.coreMat) return;
+  sun.coreMat.map = tex;
+  sun.coreMat.color.set(0xffffff);
+  sun.coreMat.needsUpdate = true;
 }

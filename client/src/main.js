@@ -6,6 +6,10 @@ import {
   SUN_RADIUS,
   SUN_GLOW_SCALE,
   SUN_CORONA_SCALE,
+  SUN_TEXTURE_PATH,
+  MILKYWAY_TEXTURE_PATH,
+  SKYBOX_RADIUS,
+  SKYBOX_OPACITY,
 } from './three/config.js';
 import { ensureEntry, loadTexture } from './three/textures.js';
 import {
@@ -13,7 +17,8 @@ import {
   applySphereTextureToPlanet,
   applyRingTextureToPlanet,
 } from './three/planets.js';
-import { createSun } from './three/sun.js';
+import { createSun, applySunTexture } from './three/sun.js';
+import { createSkybox, applySkyboxTexture } from './three/skybox.js';
 import { createStarfield } from './three/starfield.js';
 import { createDust } from './three/dust.js';
 import { initSectionObserver } from './dom/sectionObserver.js';
@@ -35,6 +40,10 @@ document.querySelector('#app').innerHTML = [
   Contact(),
 ].join('');
 
+const skybox = createSkybox({ radius: SKYBOX_RADIUS, opacity: SKYBOX_OPACITY });
+scene.add(skybox);
+loadTexture(MILKYWAY_TEXTURE_PATH, (tex) => applySkyboxTexture(skybox, tex));
+
 const sun = createSun({
   position: SUN_POSITION,
   radius: SUN_RADIUS,
@@ -42,6 +51,7 @@ const sun = createSun({
   coronaScale: SUN_CORONA_SCALE,
 });
 scene.add(sun.group);
+loadTexture(SUN_TEXTURE_PATH, (tex) => applySunTexture(sun, tex));
 
 const stars = createStarfield();
 scene.add(stars);
