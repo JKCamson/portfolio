@@ -106,19 +106,20 @@ Original restructure design (folder layout): `docs/superpowers/specs/2026-04-27-
 
 ## Currently building
 
-**Contact form (server-side)** — *code complete; awaiting domain + production env vars.*
+*Nothing in progress.* Next up per the roadmap (and the user's own
+"Highlight picks" — most memorable for visitors): the **AI chat
+widget** powered by the Anthropic API. Spec / plan to be written when
+work begins.
 
-- API: `api/contact.js` — Zod validation, honeypot drop, Cloudflare
-  Turnstile verify, Resend owner notification, Resend auto-reply.
-- Frontend: `Contact.js` form markup + `dom/contactForm.js` state machine
-  (idle → submitting → success / error with `mailto:` fallback).
-- Local dev: `npm run dev:full` (requires Vercel CLI + `.env.local` with
-  Resend key + Turnstile test keys).
-- Remaining (user-driven): buy domain, add to Vercel + Resend +
-  Cloudflare Turnstile, set production env vars, deploy, smoke test.
+## Recently shipped
 
-Spec: `docs/superpowers/specs/2026-04-29-contact-form-design.md`
-Plan: `docs/superpowers/plans/2026-04-29-contact-form.md`
+- **Contact form** (2026-05-01) — `POST /api/contact` (Zod validation,
+  honeypot drop, Cloudflare Turnstile verify, Resend owner email +
+  auto-reply). Frontend: `Contact.js` form + `dom/contactForm.js`
+  state machine. Live on `portfolio.jkylec.dev`. Sender:
+  `noreply@jkylec.dev` (apex domain verified in Resend).
+  Spec: `docs/superpowers/specs/2026-04-29-contact-form-design.md`.
+  Plan: `docs/superpowers/plans/2026-04-29-contact-form.md`.
 
 ---
 
@@ -185,26 +186,8 @@ will get its own design + plan when picked up.
 - **Most memorable to visitors:** the AI chat widget. Worth prioritizing
   after the contact form is in place.
 
-Most of these require the `server/` half of the repo. The contact form
-will set up the patterns (server scaffold, env-var handling, deploy
-target) that the rest of these reuse.
-
-
-###note from developer if limit usage is reached (delete below after the problem has been fixed keep this at the end always even after every update to this file)
-
-### turnstile verification key is not working or has triggered this line 
-''if (!payload.turnstileToken) {
-      setStatus("Hold on — verifying you're human. Try again in a second.", 'error');
-      return;
-    }
-''
-I made some changes here in contact.js (line 19)
-''  <div id="turnstile-widget" class="cf-turnstile" data-sitekey="${import.meta.env.VITE_TURNSTILE_SITE_KEY}">
-''
-and here at contactform.js (line 65)
-''turnstileToken: String(document.getElementById('turnstile-widget').value || ''),
-''
-
-I have not fixed the issue need fixing next session
-I have completed everything but needs more bug finding or "console.log' codes to find the issue
+Most of these require the `api/` half of the repo. The contact form
+established the patterns (Vercel monorepo config, env-var handling via
+Vercel project settings, deploy on `git push`) that the rest of these
+reuse.
 I have also pushed the new code to github I will find more ways so i can test the API keys in local host because i only knew how to test them when the website is deployed.

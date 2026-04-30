@@ -16,7 +16,7 @@ export const Contact = () => `
         <textarea name="message" required maxlength="5000" rows="5"></textarea>
       </label>
       <input name="company" type="text" tabindex="-1" autocomplete="off" class="cf-hp" aria-hidden="true" />
-      <div id="turnstile-widget" class="cf-turnstile" data-sitekey="${import.meta.env.VITE_TURNSTILE_SITE_KEY}"></div>
+      <div class="cf-turnstile" data-sitekey="${import.meta.env.VITE_TURNSTILE_SITE_KEY}"></div>
       <button type="submit" class="cf-submit">Send</button>
       <p class="cf-status" role="status" aria-live="polite"></p>
     </form>
