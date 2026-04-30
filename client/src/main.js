@@ -22,6 +22,7 @@ import { createSkybox, applySkyboxTexture } from './three/skybox.js';
 import { createStarfield } from './three/starfield.js';
 import { createDust } from './three/dust.js';
 import { initSectionObserver } from './dom/sectionObserver.js';
+import { initContactForm } from './dom/contactForm.js';
 import { startRenderLoop } from './three/loop.js';
 
 import { Nav } from './components/Nav.js';
@@ -85,4 +86,5 @@ for (const [name, cfg] of Object.entries(SECTIONS)) {
 
 attachResizeHandler();
 initSectionObserver();
+initContactForm();
 startRenderLoop({ scene, camera, renderer, planets, sun, stars, dust });

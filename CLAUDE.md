@@ -68,8 +68,8 @@ Plan: `docs/superpowers/plans/2026-04-28-scene-redesign.md`.
 
 ## Project structure
 
-Repo is split into `client/` (frontend) and `server/` (backend
-placeholder). Inside `client/src/`:
+Repo has `client/` (Vite frontend) and `api/` (Vercel serverless
+functions; one file = one endpoint). Inside `client/src/`:
 
 - `main.js` — thin orchestrator: mounts components, creates planets / sun
   / skybox / stars / dust, kicks off texture loads, starts the render
@@ -91,8 +91,9 @@ placeholder). Inside `client/src/`:
   `Nav.js`).
 - `partials/` — small reusable HTML atoms (buttons, cards, badges).
   Empty for now; documented in its README.
-- `dom/` — DOM-only behavior (no Three.js, no markup); currently
-  `sectionObserver.js` for dot active-state and section fade-in.
+- `dom/` — DOM-only behavior (no Three.js, no markup): `sectionObserver.js`
+  (dot active-state + section fade-in), `contactForm.js` (contact form
+  state machine + fetch to `/api/contact`).
 - `styles/` — CSS split per concern: `base.css` (vars, reset,
   scrollbar), `layout.css` (sections, modifiers, headings), `nav.css`
   (dots), `components/{hero,skills,projects,contact,waypoint}.css`.
@@ -105,13 +106,19 @@ Original restructure design (folder layout): `docs/superpowers/specs/2026-04-27-
 
 ## Currently building
 
-**Contact form (server-side).** Starting next: scaffold `server/` and
-add a `POST /api/contact` endpoint that receives the form, sends an
-email to the owner, and replies to the sender. Spam protection (rate
-limit + captcha) included. The frontend `Contact` component will swap
-its `mailto:` heading for a real form once the endpoint exists.
+**Contact form (server-side)** — *code complete; awaiting domain + production env vars.*
 
-Spec / plan to be written when work begins.
+- API: `api/contact.js` — Zod validation, honeypot drop, Cloudflare
+  Turnstile verify, Resend owner notification, Resend auto-reply.
+- Frontend: `Contact.js` form markup + `dom/contactForm.js` state machine
+  (idle → submitting → success / error with `mailto:` fallback).
+- Local dev: `npm run dev:full` (requires Vercel CLI + `.env.local` with
+  Resend key + Turnstile test keys).
+- Remaining (user-driven): buy domain, add to Vercel + Resend +
+  Cloudflare Turnstile, set production env vars, deploy, smoke test.
+
+Spec: `docs/superpowers/specs/2026-04-29-contact-form-design.md`
+Plan: `docs/superpowers/plans/2026-04-29-contact-form.md`
 
 ---
 
@@ -120,8 +127,8 @@ Spec / plan to be written when work begins.
 Not yet built — captured here so future iterations have context. Each
 will get its own design + plan when picked up.
 
-### Contact & Communication ← **starting now**
-- Contact form that emails the owner directly.
+### Contact & Communication ← **starting now** (quickest universally-useful feature to ship)
+- Contact form that emails the owner directly (Nodemailer / SendGrid / Resend — pick during design).
 - Auto-reply to people who message in.
 - Spam protection: rate limiting + captcha verification.
 
@@ -146,11 +153,37 @@ will get its own design + plan when picked up.
 ### Analytics & tracking
 - Count profile views and project clicks.
 - See which projects get the most attention.
+- Page views, referrers, time on page (custom visitor analytics).
 - Self-hosted (no Google Analytics).
 
-### Auth (only if needed)
+### Authentication & Dynamic Content
 - Admin login so only the owner can add / edit projects.
 - Protect specific pages or admin routes.
+- Password-protected case studies / client work.
+- Admin dashboard to update projects without touching code.
+
+### API integrations
+- Pull latest GitHub repos dynamically (replace hardcoded `Work.js` list).
+- Display live Dribbble / Behance work.
+- Show latest blog posts from a CMS (Sanity / Contentful / similar).
+
+### Performance & delivery
+- Server-side rendering (SSR) or static site generation for faster
+  loads and better SEO.
+- Image optimization pipeline (resize / compress on the fly).
+- Caching layer with Redis for fast repeat visits.
+
+### Fun / impressive extras
+- **AI-powered chat widget** that answers questions about your work,
+  via the Anthropic API. *Most memorable feature for visitors —
+  stands out on a dev portfolio.*
+- Resume / CV generator that builds a PDF on demand.
+- "Hire me" availability status pulled from your calendar.
+
+### Highlight picks
+- **Quickest to ship, broadest value:** the contact form (above).
+- **Most memorable to visitors:** the AI chat widget. Worth prioritizing
+  after the contact form is in place.
 
 Most of these require the `server/` half of the repo. The contact form
 will set up the patterns (server scaffold, env-var handling, deploy
