@@ -1,6 +1,7 @@
 {
   "framework": "vite",
-  "buildCommand": "npm --prefix client run build",
+  "installCommand": "npm install --prefix client",
+  "buildCommand": "npm run build --prefix client",
   "outputDirectory": "client/dist",
   "functions": {
     "api/**/*.js": { "maxDuration": 10 }
