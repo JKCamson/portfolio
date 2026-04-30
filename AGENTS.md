@@ -26,11 +26,13 @@ portfolio/
 │   │   └── pages/             # Multi-page entries (when added).
 │   ├── index.html             # Slim shell. Mounts via #nav-mount + #app.
 │   └── package.json
-├── server/                    # Backend (placeholder until first feature).
+├── api/                       # Vercel serverless functions (one file = one endpoint).
 ├── docs/superpowers/          # Design specs + implementation plans.
 ├── CLAUDE.md                  # Project context + planned features.
 ├── AGENTS.md                  # This file.
-└── package.json               # Delegates to client/ and (future) server/.
+├── vercel.json                # Vercel build/output/functions config.
+├── .env.example               # Documented env-var keys (committed).
+└── package.json               # Root: dev/build scripts + serverless deps.
 ```
 
 ---
@@ -54,7 +56,7 @@ Use this decision guide before creating any new file.
 | Global tokens / reset | `client/src/styles/base.css` | Variables on `:root`, resets, base typography. |
 | Layout / structural CSS | `client/src/styles/layout.css` | `main`, `section`, canvas placement. |
 | A new HTML page (e.g. `/blog`) | `client/<page>.html` + `client/src/pages/<page>.js` | Add the entry to `vite.config.js` `build.rollupOptions.input`. |
-| Backend code (API, mailer, DB) | `server/...` | Scaffold `server/package.json` first. Update root scripts. |
+| Backend code (API endpoint) | `api/<name>.js` (repo root) | One file = one HTTP endpoint = one Vercel serverless function. Vercel auto-detects `api/` and deploys each file as `/api/<name>`. |
 | Static asset (image, texture, font) | `client/public/assets/<category>/` | Reference as `/assets/<category>/file.ext` (Vite serves `public/` at root). |
 
 ---
@@ -88,8 +90,17 @@ Use this decision guide before creating any new file.
 - New per-frame work goes inside `startRenderLoop`'s `animate()` in `three/loop.js`.
 
 ### `dom/`
-- No Three.js imports here. If you need a Three.js side effect, import a function from `three/transitions.js` (or another `three/` module) and call it.
+- No Three.js imports here. If you need a Three.js side effect, import a function from a `three/` module and call it.
 - Each module exports an `init*()` function. `main.js` calls these once at boot.
+- May call `fetch('/api/<endpoint>')` to talk to serverless functions, but never imports server code directly.
+
+### `api/`
+- Each `api/<name>.js` is a Vercel serverless function. Default export is the handler: `export default async function handler(req, res) { ... }`.
+- One responsibility per file. Don't co-mingle endpoints — `api/contact.js` and `api/projects.js` stay separate.
+- Validate input with a Zod schema at the top of the handler. Validation failures → `400 { ok: false, fieldErrors: { ... } }`.
+- Always return JSON in the shape `{ ok: boolean, ...payload }`. Never leak internal error details — log via `console.error` (visible in Vercel dashboard logs) and return a generic message.
+- Read secrets via `process.env.<NAME>`. Add new keys to `.env.example` and to Vercel project settings.
+- Don't put long-running processes here — each invocation is short-lived.
 
 ### `styles/`
 - Every new CSS file must be `@import`-ed from `styles/main.css`.
@@ -100,9 +111,8 @@ Use this decision guide before creating any new file.
 - One concern per file. No god-modules.
 - Pure functions only — no DOM, no Three.js side effects.
 
-### `server/`
-- Currently empty. When you start backend work, read `server/README.md` first.
-- The frontend never imports from `server/`. Cross the boundary only via `fetch()` to API endpoints.
+### `server/` (removed)
+The previous `server/` placeholder was replaced by Vercel-style `api/` at the repo root. See the `api/` section above.
 
 ---
 
@@ -127,9 +137,12 @@ This is the failure mode most likely to bite an agent. Use the list.
 This project has no automated test suite. After **every** non-trivial change:
 
 ```bash
-npm run build      # from repo root — fails fast on import / syntax errors
-npm run dev        # for visual confirmation
+npm run build         # from repo root — fails fast on import / syntax / build wiring
+npm run dev           # frontend only (Vite at :5173) — for Three.js / CSS / component work
+npm run dev:full      # vercel dev — full stack (functions + Vite at :3000) — for API / form work
 ```
+
+`npm run dev:full` requires the Vercel CLI (`npm i -g vercel`) and a one-time interactive `vercel login` + `vercel link`. It auto-loads `.env.local` from the repo root.
 
 If you can't run a browser, at minimum confirm `npm run build` exits 0 before declaring work complete.
 
@@ -142,7 +155,7 @@ If you can't run a browser, at minimum confirm `npm run build` exits 0 before de
 - **Don't introduce a framework** (React, Vue, Svelte, lit-html, etc.) without first proposing it in a design doc under `docs/superpowers/specs/`.
 - **Don't bypass `styles/main.css`.** Every CSS file must be reachable from there.
 - **Don't grow `main.js` past ~80 lines.** When it does, the next module probably wants to be extracted (e.g. `three/rail.js` for the planets-rail setup).
-- **Don't add `package.json` dependencies at the repo root.** Dependencies live in `client/` (and later `server/`). Root scripts only delegate.
+- **Frontend deps live in `client/package.json`. Serverless function deps live in root `package.json`** (Vercel functions resolve from there). Don't put frontend deps at the root or serverless deps in client/.
 - **Don't commit `dist/`, `node_modules/`, or `.vite/`.** Already gitignored.
 - **Don't write planning, decision, or analysis `.md` files unless explicitly asked.** Specs and plans go under `docs/superpowers/`.
 
