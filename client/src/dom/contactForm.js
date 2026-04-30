@@ -6,6 +6,32 @@ export function initContactForm() {
 
   const status = form.querySelector('.cf-status');
   const submitBtn = form.querySelector('.cf-submit');
+  const turnstileEl = form.querySelector('.cf-turnstile');
+
+  // Explicit Turnstile rendering — implicit auto-render only catches
+  // .cf-turnstile divs present at api.js load time. Our form is mounted
+  // dynamically, so we render manually once api.js exposes window.turnstile.
+  function renderTurnstile(attempts = 0) {
+    if (!turnstileEl) return;
+    if (turnstileEl.dataset.rendered === 'true') return;
+    if (window.turnstile && typeof window.turnstile.render === 'function') {
+      try {
+        window.turnstile.render(turnstileEl, {
+          sitekey: turnstileEl.dataset.sitekey,
+        });
+        turnstileEl.dataset.rendered = 'true';
+      } catch (err) {
+        console.error('Turnstile render error:', err);
+      }
+      return;
+    }
+    if (attempts < 50) {
+      setTimeout(() => renderTurnstile(attempts + 1), 100);
+    } else {
+      console.error('Turnstile api.js never loaded after 5s');
+    }
+  }
+  renderTurnstile();
 
   function setStatus(text, kind = 'info') {
     if (!status) return;
