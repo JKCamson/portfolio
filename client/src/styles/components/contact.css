@@ -60,7 +60,7 @@
 
 .cf-field-error {
   font-size: 0.75rem;
-  color: rgba(255, 140, 120, 0.85);
+  color: rgb(2, 2, 2);
   margin-top: 0.1rem;
 }
 
@@ -109,7 +109,7 @@
 }
 
 .cf-status[data-kind="error"] {
-  color: rgba(255, 140, 120, 0.9);
+  color: rgb(0, 0, 0);
 }
 
 .cf-status[data-kind="success"] {
