@@ -188,3 +188,23 @@ will get its own design + plan when picked up.
 Most of these require the `server/` half of the repo. The contact form
 will set up the patterns (server scaffold, env-var handling, deploy
 target) that the rest of these reuse.
+
+
+###note from developer if limit usage is reached (delete below after the problem has been fixed keep this at the end always even after every update to this file)
+
+### turnstile verification key is not working or has triggered this line 
+''if (!payload.turnstileToken) {
+      setStatus("Hold on — verifying you're human. Try again in a second.", 'error');
+      return;
+    }
+''
+I made some changes here in contact.js (line 19)
+''  <div id="turnstile-widget" class="cf-turnstile" data-sitekey="${import.meta.env.VITE_TURNSTILE_SITE_KEY}">
+''
+and here at contactform.js (line 65)
+''turnstileToken: String(document.getElementById('turnstile-widget').value || ''),
+''
+
+I have not fixed the issue need fixing next session
+I have completed everything but needs more bug finding or "console.log' codes to find the issue
+I have also pushed the new code to github I will find more ways so i can test the API keys in local host because i only knew how to test them when the website is deployed.

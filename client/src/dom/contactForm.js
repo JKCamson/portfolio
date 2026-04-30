@@ -62,7 +62,7 @@ export function initContactForm() {
       email: String(fd.get('email') || '').trim(),
       message: String(fd.get('message') || '').trim(),
       company: String(fd.get('company') || ''),
-      turnstileToken: String(document.getElementById('turnstile-widget').value || ''),
+      turnstileToken: String(fd.get('cf-turnstile-response') || ''),
     };
 
     if (!payload.turnstileToken) {
