@@ -1,2 +1,4 @@
+import { initAdmin } from '../admin/auth.js';
+
 const mount = document.querySelector('#admin-mount');
-mount.textContent = 'Hello admin (placeholder)';
+initAdmin(mount);
