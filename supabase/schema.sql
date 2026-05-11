@@ -56,10 +56,11 @@ create policy "owner deletes projects"
 -- Storage RLS for the project-screenshots bucket. The bucket itself
 -- is created via the Supabase Storage UI in Task 11; these policies
 -- are applied at the same time.
-
-create policy "public reads screenshots"
-  on storage.objects for select
-  using (bucket_id = 'project-screenshots');
+--
+-- Note: no public SELECT policy. Public bucket access happens via the
+-- /storage/v1/object/public/<bucket>/<file> URL, which does not require
+-- an RLS policy. A broad SELECT would just let clients enumerate every
+-- filename, which we don't need.
 
 create policy "owner inserts screenshots"
   on storage.objects for insert
