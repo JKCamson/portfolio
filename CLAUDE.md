@@ -93,12 +93,22 @@ functions; one file = one endpoint). Inside `client/src/`:
   Empty for now; documented in its README.
 - `dom/` — DOM-only behavior (no Three.js, no markup): `sectionObserver.js`
   (dot active-state + section fade-in), `contactForm.js` (contact form
-  state machine + fetch to `/api/contact`).
+  state machine + fetch to `/api/contact`), `projectsList.js` (public
+  projects fetch from Supabase + tag-pill filtering).
+- `lib/` — shared library clients. `supabase.js` exports a single
+  `createClient` instance using `VITE_SUPABASE_URL` and
+  `VITE_SUPABASE_PUBLISHABLE_KEY`.
+- `admin/` — admin-dashboard-only modules: `auth.js` (GitHub OAuth +
+  owner-email gate), `dashboard.js` (list view + delete), `projectForm.js`
+  (create/edit form, GitHub repo prefill, screenshot upload), and
+  `styles/admin.css`. Loaded only by the `/admin.html` entry.
+- `pages/` — multi-page Vite entries. `admin.js` boots `admin.html`,
+  initializes admin auth + dashboard. No Three.js on this page.
 - `styles/` — CSS split per concern: `base.css` (vars, reset,
   scrollbar), `layout.css` (sections, modifiers, headings), `nav.css`
   (dots), `components/{hero,skills,projects,contact,waypoint}.css`.
   `main.css` aggregates everything via `@import`.
-- `utils/`, `pages/` — placeholders documented in their READMEs.
+- `utils/` — placeholder documented in its README.
 
 Original restructure design (folder layout): `docs/superpowers/specs/2026-04-27-portfolio-restructure-design.md`.
 
@@ -106,12 +116,30 @@ Original restructure design (folder layout): `docs/superpowers/specs/2026-04-27-
 
 ## Currently building
 
-*Nothing in progress.* Next up per the roadmap (and the user's own
-"Highlight picks" — most memorable for visitors): the **AI chat
-widget** powered by the Anthropic API. Spec / plan to be written when
-work begins.
+*Nothing in progress.* Next up per the user's latest decision: a
+**scene redesign** — push the sun further (it currently overwhelms the
+contact section), add the three missing solar-system planets so the
+full eight (Mercury → Neptune) appear in real order, and rework the
+camera into a Bezier arc through the system instead of a straight Z
+sweep. Spec / plan to be written when work begins.
+
+The **AI chat widget** (Anthropic API) remains the post-scene-redesign
+priority per the "Highlight picks" — most memorable for visitors.
 
 ## Recently shipped
+
+- **Projects showcase** (2026-05-11) — DB-backed projects list (replaces
+  hardcoded `Work.js`), `/admin` dashboard with GitHub OAuth gating,
+  screenshot uploads, and tag-pill filtering. Backend: Supabase
+  (Postgres + Auth + Storage). Public reads gated by `published=true`
+  RLS; writes owner-only. Multi-page Vite (`client/admin.html` for the
+  admin entry — no Three.js on admin). Admin form has a "Prefill from
+  GitHub" helper that pulls title, slug, summary, tech stack
+  (`/languages`), topics, and URLs from a public repo. Public list
+  spans the full Work section width with auto-fit 280px cards centered
+  in the row. Spec:
+  `docs/superpowers/specs/2026-05-01-projects-showcase-design.md`.
+  Plan: `docs/superpowers/plans/2026-05-09-projects-showcase.md`.
 
 - **Contact form** (2026-05-01) — `POST /api/contact` (Zod validation,
   honeypot drop, Cloudflare Turnstile verify, Resend owner email +
@@ -138,18 +166,18 @@ will get its own design + plan when picked up.
 - Draft / publish workflow so posts aren't live until ready.
 - Tags, categories, search.
 
-### Projects showcase
-- Project data (title, description, tech stack, links, screenshots) in
-  a database instead of hardcoded in `components/Work.js`.
-- Add / update projects from a CMS without touching code.
-- Filter by technology or category.
+### Projects showcase — stretch ideas (MVP shipped 2026-05-11)
+- Search bar across title / summary / tech.
+- Multi-screenshot gallery (currently 1 screenshot per project).
+- Bulk Storage cleanup when projects are deleted (currently the row
+  goes but the file lingers — intentional v1 trade-off).
+- Multi-select tag filtering (currently single-select pills).
 
 ### Project links — possible approaches (pick per project)
-- **Direct link** to the live deployed project (simplest, no backend).
-- **GitHub repo link** so visitors can browse the code.
 - **Embedded preview** — iframe inside the portfolio.
-- **Screenshot / video + link** — backend serves the media, frontend displays it.
 - **Password-protected demos** — backend verifies password before showing.
+- (Direct deployed link + GitHub repo link are already supported via
+  `demo_url` / `repo_url` on each project row.)
 
 ### Analytics & tracking
 - Count profile views and project clicks.
@@ -157,14 +185,15 @@ will get its own design + plan when picked up.
 - Page views, referrers, time on page (custom visitor analytics).
 - Self-hosted (no Google Analytics).
 
-### Authentication & Dynamic Content
-- Admin login so only the owner can add / edit projects.
-- Protect specific pages or admin routes.
+### Authentication & Dynamic Content (admin login shipped 2026-05-11)
 - Password-protected case studies / client work.
-- Admin dashboard to update projects without touching code.
+- Per-route protection (the admin route already gates on owner GitHub
+  OAuth; this would extend to public-but-gated pages).
 
 ### API integrations
-- Pull latest GitHub repos dynamically (replace hardcoded `Work.js` list).
+- Auto-import a GitHub repo as a project row on demand (today's admin
+  form prefills from GitHub but still requires a manual save). Could
+  watch a list of "starred" repos and surface new ones.
 - Display live Dribbble / Behance work.
 - Show latest blog posts from a CMS (Sanity / Contentful / similar).
 
@@ -182,12 +211,16 @@ will get its own design + plan when picked up.
 - "Hire me" availability status pulled from your calendar.
 
 ### Highlight picks
-- **Quickest to ship, broadest value:** the contact form (above).
-- **Most memorable to visitors:** the AI chat widget. Worth prioritizing
-  after the contact form is in place.
+- **Already shipped:** contact form (2026-05-01) and projects showcase
+  (2026-05-11) — the two highest-value features per past planning.
+- **Up next:** scene redesign (push sun, add Mercury / Venus / Uranus,
+  Bezier camera arc).
+- **Most memorable to visitors after that:** the AI chat widget.
 
 Most of these require the `api/` half of the repo. The contact form
 established the patterns (Vercel monorepo config, env-var handling via
-Vercel project settings, deploy on `git push`) that the rest of these
-reuse.
+Vercel project settings, deploy on `git push`). Supabase-direct-from-
+browser (used by the projects showcase) is the alternative for client-
+side-heavy features that need DB + Auth + Storage without an extra
+API layer.
 I have also pushed the new code to github I will find more ways so i can test the API keys in local host because i only knew how to test them when the website is deployed.
