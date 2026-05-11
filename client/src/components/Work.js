@@ -4,10 +4,9 @@ export const Work = () => `
       <p class="eyebrow">03</p>
       <h2>Work</h2>
       <div class="divider"></div>
-      <ul class="projects">
-        <li><h3>Project One</h3><p>One-line description.</p></li>
-        <li><h3>Project Two</h3><p>One-line description.</p></li>
-        <li><h3>Project Three</h3><p>One-line description.</p></li>
+      <div id="projects-pills" class="projects__pills" hidden></div>
+      <ul id="projects-list" class="projects" aria-busy="true">
+        <li class="projects__loading">Loading…</li>
       </ul>
     </div>
   </section>

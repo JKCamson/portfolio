@@ -23,6 +23,7 @@ import { createStarfield } from './three/starfield.js';
 import { createDust } from './three/dust.js';
 import { initSectionObserver } from './dom/sectionObserver.js';
 import { initContactForm } from './dom/contactForm.js';
+import { initProjectsList } from './dom/projectsList.js';
 import { startRenderLoop } from './three/loop.js';
 
 import { Nav } from './components/Nav.js';
@@ -87,4 +88,5 @@ for (const [name, cfg] of Object.entries(SECTIONS)) {
 attachResizeHandler();
 initSectionObserver();
 initContactForm();
+initProjectsList();
 startRenderLoop({ scene, camera, renderer, planets, sun, stars, dust });
