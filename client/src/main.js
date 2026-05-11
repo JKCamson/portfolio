@@ -1,3 +1,6 @@
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+
 import { scene, camera, renderer, attachResizeHandler } from './three/scene.js';
 import {
   SECTION_ORDER,
