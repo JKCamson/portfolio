@@ -1,4 +1,7 @@
 import { supabase } from '../lib/supabase.js';
+import { renderProjectForm } from './projectForm.js';
+
+let cachedProjects = [];
 
 export async function renderDashboard(mountNode) {
   mountNode.innerHTML = `
@@ -18,8 +21,7 @@ export async function renderDashboard(mountNode) {
   });
 
   mountNode.querySelector('#new-project').addEventListener('click', () => {
-    // Wired in Task 9.
-    alert('New-project form lands in Task 9.');
+    renderProjectForm(mountNode, null, () => renderDashboard(mountNode));
   });
 
   await loadAndRenderList(mountNode);
@@ -42,6 +44,8 @@ async function loadAndRenderList(mountNode) {
     body.innerHTML = '';
     return;
   }
+
+  cachedProjects = data;
 
   if (!data.length) {
     body.innerHTML = `<p>No projects yet. Click "+ New project" to add one.</p>`;
@@ -80,8 +84,9 @@ async function loadAndRenderList(mountNode) {
   });
   body.querySelectorAll('button[data-action="edit"]').forEach(btn => {
     btn.addEventListener('click', () => {
-      // Wired in Task 9.
-      alert('Edit form lands in Task 9.');
+      const project = cachedProjects.find(p => p.id === btn.dataset.id);
+      if (!project) return;
+      renderProjectForm(mountNode, project, () => renderDashboard(mountNode));
     });
   });
 }
