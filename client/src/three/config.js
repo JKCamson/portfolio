@@ -63,11 +63,11 @@ export const SECTION_ORDER = ['hero', 'about', 'skills', 'work', 'contact'];
 export const CAMERA_START_Z = 350 / 14;
 export const CAMERA_END_Z = -540 / 14;
 
-// Sun
-export const SUN_POSITION = new THREE.Vector3(0, 0, -650 / 14);
-export const SUN_RADIUS = 90 / 14;
-export const SUN_GLOW_SCALE = 520 / 14;
-export const SUN_CORONA_SCALE = 820 / 14;
+// Sun — far + upper-right offset so the contact section isn't blown out
+export const SUN_POSITION = new THREE.Vector3(420 / 14, 260 / 14, -1600 / 14);
+export const SUN_RADIUS = 170 / 14;
+export const SUN_GLOW_SCALE = 1300 / 14;
+export const SUN_CORONA_SCALE = 2200 / 14;
 export const SUN_TEXTURE_PATH = '/assets/planets/sun.jpg';
 
 // Skybox (Milky Way backdrop behind the procedural starfield)

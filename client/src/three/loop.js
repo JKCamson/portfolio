@@ -16,7 +16,7 @@ export function startRenderLoop({ scene, camera, renderer, planets, sun, stars, 
     const pulse = 1 + Math.sin(Date.now() * 0.0011) * 0.04;
     sun.glow.scale.set(SUN_GLOW_SCALE * pulse, SUN_GLOW_SCALE * pulse, 1);
     sun.corona.scale.set(SUN_CORONA_SCALE * pulse, SUN_CORONA_SCALE * pulse, 1);
-    sun.glowMat.opacity = 0.85 + Math.max(0, Math.min(1, t)) * 0.15;
+    sun.glowMat.opacity = 0.55 + Math.max(0, Math.min(1, t)) * 0.15;
 
     stars.rotation.y += 0.00008;
     dust.rotation.y -= 0.00004;
