@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 export const SECTIONS = {
   hero: {
+    // Neptune (unchanged — already outermost)
     radius: 1.7, color: 0x4166f5, emissive: 0x081330, emissiveIntensity: 0.25,
     roughness: 0.85, metalness: 0.05,
     offset: { x: -65 / 14, y: 12 / 14 },
@@ -12,40 +13,11 @@ export const SECTIONS = {
     texturePath: '/assets/planets/neptune.jpg',
   },
   about: {
-    radius: 1.5, color: 0x3a7bd5, emissive: 0x07254a, emissiveIntensity: 0.25,
+    // Saturn (was Earth) — ring moved here
+    radius: 1.5, color: 0xe8d4a3, emissive: 0x3a2a10, emissiveIntensity: 0.25,
     roughness: 0.85, metalness: 0.05,
     offset: { x: 78 / 14, y: -22 / 14 },
     z: 60 / 14,
-    rotSpeed: 0.003,
-    haloColor: 0x4ddc92,
-    haloOpacity: 0.45,
-    texturePath: '/assets/planets/earth.jpg',
-  },
-  skills: {
-    radius: 1.4, color: 0xc1440e, emissive: 0x3a0a06, emissiveIntensity: 0.25,
-    roughness: 0.85, metalness: 0.05,
-    offset: { x: -95 / 14, y: 28 / 14 },
-    z: -90 / 14,
-    rotSpeed: 0.004,
-    haloColor: 0xff5a3d,
-    haloOpacity: 0.45,
-    texturePath: '/assets/planets/mars.jpg',
-  },
-  work: {
-    radius: 1.85, color: 0xd1a36b, emissive: 0x3a2a10, emissiveIntensity: 0.25,
-    roughness: 0.85, metalness: 0.05,
-    offset: { x: 62 / 14, y: 24 / 14 },
-    z: -230 / 14,
-    rotSpeed: 0.006,
-    haloColor: 0xe2b76c,
-    haloOpacity: 0.45,
-    texturePath: '/assets/planets/jupiter.jpg',
-  },
-  contact: {
-    radius: 1.5, color: 0xe8d4a3, emissive: 0x3a2a10, emissiveIntensity: 0.25,
-    roughness: 0.85, metalness: 0.05,
-    offset: { x: -55 / 14, y: -32 / 14 },
-    z: -370 / 14,
     rotSpeed: 0.007,
     haloColor: 0xe2b76c,
     haloOpacity: 0.45,
@@ -54,6 +26,39 @@ export const SECTIONS = {
       texturePath: '/assets/planets/saturn_ring.png',
     },
     texturePath: '/assets/planets/saturn.jpg',
+  },
+  skills: {
+    // Jupiter (was Mars)
+    radius: 1.85, color: 0xd1a36b, emissive: 0x3a2a10, emissiveIntensity: 0.25,
+    roughness: 0.85, metalness: 0.05,
+    offset: { x: -95 / 14, y: 28 / 14 },
+    z: -90 / 14,
+    rotSpeed: 0.006,
+    haloColor: 0xe2b76c,
+    haloOpacity: 0.45,
+    texturePath: '/assets/planets/jupiter.jpg',
+  },
+  work: {
+    // Mars (was Jupiter)
+    radius: 1.4, color: 0xc1440e, emissive: 0x3a0a06, emissiveIntensity: 0.25,
+    roughness: 0.85, metalness: 0.05,
+    offset: { x: 62 / 14, y: 24 / 14 },
+    z: -230 / 14,
+    rotSpeed: 0.004,
+    haloColor: 0xff5a3d,
+    haloOpacity: 0.45,
+    texturePath: '/assets/planets/mars.jpg',
+  },
+  contact: {
+    // Earth (was Saturn) — no ring anymore
+    radius: 1.5, color: 0x3a7bd5, emissive: 0x07254a, emissiveIntensity: 0.25,
+    roughness: 0.85, metalness: 0.05,
+    offset: { x: -55 / 14, y: -32 / 14 },
+    z: -370 / 14,
+    rotSpeed: 0.003,
+    haloColor: 0x4ddc92,
+    haloOpacity: 0.45,
+    texturePath: '/assets/planets/earth.jpg',
   },
 };
 
