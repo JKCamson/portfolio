@@ -1,6 +1,4 @@
 import * as THREE from 'three';
-import { SECTIONS } from './config.js';
-import { textures } from './textures.js';
 import { getSharedGlowTexture } from './sun.js';
 
 function remapRingUVs(geom, inner, outer) {
@@ -47,9 +45,7 @@ function addHaloTo(group, cfg) {
   group.add(halo);
 }
 
-export function buildPlanet(name) {
-  const cfg = SECTIONS[name];
-  const tex = textures[name] || {};
+export function buildPlanet(cfg, tex = {}, name = 'planet') {
   const group = new THREE.Group();
   group.name = `planet:${name}`;
 

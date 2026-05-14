@@ -79,3 +79,51 @@ export const SUN_TEXTURE_PATH = '/assets/planets/sun.jpg';
 export const MILKYWAY_TEXTURE_PATH = '/assets/planets/stars_milkyway.jpg';
 export const SKYBOX_RADIUS = 200;
 export const SKYBOX_OPACITY = 0.45;
+
+// Background planets — not tied to any section. Rotate and drift through
+// peripheral view. Mercury uses a procedural texture (no mercury.jpg yet).
+export const BACKGROUND_PLANETS = [
+  {
+    // Uranus — between Neptune (hero, z=12.86) and Saturn (about, z=4.29)
+    key: 'uranus',
+    radius: 1.2,
+    color: 0x9fd8e8, emissive: 0x1a4858, emissiveIntensity: 0.25,
+    roughness: 0.85, metalness: 0.05,
+    offset: { x: -3, y: 1 },
+    z: 8.5,
+    rotSpeed: 0.004,
+    haloColor: 0x9fd8e8,
+    haloOpacity: 0.4,
+    texturePath: '/assets/planets/uranus.jpg',
+    procedural: false,
+  },
+  {
+    // Venus — between Earth (contact, z=-26.43) and the sun. Filename has the
+    // existing typo "athmosphere" preserved.
+    key: 'venus',
+    radius: 1.0,
+    color: 0xd8b67a, emissive: 0x3a2a10, emissiveIntensity: 0.25,
+    roughness: 0.85, metalness: 0.05,
+    offset: { x: 2, y: -1 },
+    z: -32,
+    rotSpeed: 0.005,
+    haloColor: 0xd8b67a,
+    haloOpacity: 0.4,
+    texturePath: '/assets/planets/venus_athmosphere.jpg',
+    procedural: false,
+  },
+  {
+    // Mercury — closest to the sun. Procedural texture.
+    key: 'mercury',
+    radius: 0.7,
+    color: 0x8a8580, emissive: 0x2a2520, emissiveIntensity: 0.2,
+    roughness: 0.95, metalness: 0.02,
+    offset: { x: -1.5, y: 1.5 },
+    z: -38,
+    rotSpeed: 0.006,
+    haloColor: 0x999999,
+    haloOpacity: 0.3,
+    texturePath: null,
+    procedural: true,
+  },
+];

@@ -13,8 +13,9 @@ import {
   MILKYWAY_TEXTURE_PATH,
   SKYBOX_RADIUS,
   SKYBOX_OPACITY,
+  BACKGROUND_PLANETS,
 } from './three/config.js';
-import { ensureEntry, loadTexture } from './three/textures.js';
+import { ensureEntry, loadTexture, textures, getMercuryTexture } from './three/textures.js';
 import {
   buildPlanet,
   applySphereTextureToPlanet,
@@ -65,11 +66,26 @@ const dust = createDust();
 scene.add(dust);
 
 const planets = SECTION_ORDER.map((name) => {
-  const { group, mesh } = buildPlanet(name);
   const cfg = SECTIONS[name];
+  const { group, mesh } = buildPlanet(cfg, textures[name] || {}, name);
   group.position.set(cfg.offset.x, cfg.offset.y, cfg.z);
   scene.add(group);
   return { name, group, mesh, rotSpeed: cfg.rotSpeed };
+});
+
+const backgroundPlanets = BACKGROUND_PLANETS.map((bg) => {
+  const initialTex = { sphere: bg.procedural ? getMercuryTexture() : null };
+  const { group, mesh } = buildPlanet(bg, initialTex, bg.key);
+  group.position.set(bg.offset.x, bg.offset.y, bg.z);
+  scene.add(group);
+
+  if (!bg.procedural && bg.texturePath) {
+    loadTexture(bg.texturePath, (tex) => {
+      applySphereTextureToPlanet(group, bg, tex);
+    });
+  }
+
+  return { name: bg.key, group, mesh, rotSpeed: bg.rotSpeed };
 });
 
 for (const [name, cfg] of Object.entries(SECTIONS)) {
@@ -92,4 +108,7 @@ attachResizeHandler();
 initSectionObserver();
 initContactForm();
 initProjectsList();
-startRenderLoop({ scene, camera, renderer, planets, sun, stars, dust });
+startRenderLoop({
+  scene, camera, renderer, sun, stars, dust,
+  planets: [...planets, ...backgroundPlanets],
+});
