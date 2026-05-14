@@ -115,7 +115,7 @@ export const BACKGROUND_PLANETS = [
     procedural: false,
   },
   {
-    // Mercury — closest to the sun. Procedural texture.
+    // Mercury — closest to the sun.
     key: 'mercury',
     radius: 0.7,
     color: 0x8a8580, emissive: 0x2a2520, emissiveIntensity: 0.2,
@@ -125,7 +125,7 @@ export const BACKGROUND_PLANETS = [
     rotSpeed: 0.006,
     haloColor: 0x999999,
     haloOpacity: 0.3,
-    texturePath: null,
-    procedural: true,
+    texturePath: '/assets/planets/mercury.jpg',
+    procedural: false,
   },
 ];
