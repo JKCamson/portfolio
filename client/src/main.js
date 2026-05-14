@@ -104,6 +104,11 @@ for (const [name, cfg] of Object.entries(SECTIONS)) {
   }
 }
 
+const sectionPlanetPositions = SECTION_ORDER.map((name) => {
+  const planet = planets.find((p) => p.name === name);
+  return planet.group.position.clone();
+});
+
 attachResizeHandler();
 initSectionObserver();
 initContactForm();
@@ -111,4 +116,5 @@ initProjectsList();
 startRenderLoop({
   scene, camera, renderer, sun, stars, dust,
   planets: [...planets, ...backgroundPlanets],
+  sectionPlanetPositions,
 });

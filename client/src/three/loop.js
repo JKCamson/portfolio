@@ -3,8 +3,19 @@ import {
   SUN_GLOW_SCALE, SUN_CORONA_SCALE,
 } from './config.js';
 import { getSmoothedScroll } from './scroll.js';
+import * as THREE from 'three';
 
-export function startRenderLoop({ scene, camera, renderer, planets, sun, stars, dust }) {
+const lookAtTarget = new THREE.Vector3();
+const fromVec = new THREE.Vector3();
+const toVec = new THREE.Vector3();
+
+function easeInOut(x) {
+  // Smoothstep — soft start and end, linear middle.
+  return x * x * (3 - 2 * x);
+}
+
+export function startRenderLoop({ scene, camera, renderer, planets, sun, stars, dust, sectionPlanetPositions }) {
+  const segmentCount = sectionPlanetPositions.length - 1;
   function animate() {
     const t = getSmoothedScroll();
     const mt = 1 - t;
@@ -19,7 +30,14 @@ export function startRenderLoop({ scene, camera, renderer, planets, sun, stars, 
     const time = Date.now() * 0.0001;
     camera.position.x += Math.sin(time) * 0.4;
     camera.position.y += Math.cos(time * 0.7) * 0.3;
-    camera.lookAt(0, 0, sun.group.position.z);
+    const clamped = Math.max(0, Math.min(1, t));
+    const scaled = clamped * segmentCount;
+    const segIdx = Math.min(Math.floor(scaled), segmentCount - 1);
+    const segT = scaled - segIdx;
+    fromVec.copy(sectionPlanetPositions[segIdx]);
+    toVec.copy(sectionPlanetPositions[segIdx + 1]);
+    lookAtTarget.copy(fromVec).lerp(toVec, easeInOut(segT));
+    camera.lookAt(lookAtTarget);
 
     planets.forEach((p) => { p.mesh.rotation.y += p.rotSpeed; });
 
