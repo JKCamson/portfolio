@@ -73,8 +73,8 @@ functions; one file = one endpoint). Inside `client/src/`:
   / skybox / stars / dust, kicks off texture loads, starts the render
   loop.
 - `three/` — Three.js scene logic, split by responsibility:
-  - `config.js` — `SECTIONS`, `SECTION_ORDER`, camera sweep range, sun
-    + skybox constants, texture paths.
+  - `config.js` — `SECTIONS`, `SECTION_ORDER`, `BACKGROUND_PLANETS`,
+    `CAMERA_BEZIER_P0/P1/P2`, sun + skybox constants, texture paths.
   - `scene.js` — scene, camera, renderer, lights, fog, resize handler.
   - `textures.js` — texture cache + async loader.
   - `planets.js` — `buildPlanet`, ring helpers, halo, texture appliers.

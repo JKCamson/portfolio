@@ -83,7 +83,8 @@ export const SKYBOX_RADIUS = 200;
 export const SKYBOX_OPACITY = 0.45;
 
 // Background planets — not tied to any section. Rotate and drift through
-// peripheral view. Mercury uses a procedural texture (no mercury.jpg yet).
+// peripheral view. Textures load from /assets/planets/; a procedural
+// fallback for Mercury lives in textures.js if its .jpg is ever missing.
 export const BACKGROUND_PLANETS = [
   {
     // Uranus — between Neptune (hero, z=12.86) and Saturn (about, z=4.29)
