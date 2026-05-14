@@ -9,60 +9,58 @@ When writing or modifying code in this repo, follow the conventions in
 
 ---
 
-## Current scene (as of 2026-04-28)
+## Current scene (as of 2026-05-13)
 
-**Continuous scroll-driven camera sweep through scattered planets toward
-a distant sun.** Replaces the earlier rail-jump model entirely.
+**Scroll-driven Bezier camera flight through a real-solar-system layout
+toward a far, offset sun.**
 
 ### Planets
-- Five planets at fixed `(x, y, z)` offsets in world space (defined in
-  `client/src/three/config.js` `SECTIONS`). One planet per section:
-  hero=Neptune, about=Earth, skills=Mars, work=Jupiter, contact=Saturn.
-- Each planet has its real `.jpg` texture loaded async (textures live in
-  `client/public/assets/planets/`).
-- Each planet gets a colored atmosphere halo (additive sprite using a
-  shared canvas-generated radial-gradient texture).
-- Saturn keeps its `saturn_ring.png` ring with UV-remapped geometry.
-- Per-planet `rotSpeed` (range 0.003–0.007) drives Y-axis rotation in
-  the render loop.
+- All 8 real planets in real outer-to-inner order. 5 are section-anchored,
+  3 float in the background as scenery.
+- Section-anchored (one per section): hero=Neptune, about=Saturn (with ring),
+  skills=Jupiter, work=Mars, contact=Earth. The XY/Z position of each
+  section is tied to the section (preserved from the 2026-04-28 layout);
+  the planet identity (texture, halo color, ring) was reassigned to fit
+  real solar order.
+- Background (no section binding): Uranus (between hero and about), Venus
+  (between contact and sun), Mercury (closest to sun).
+- Each planet has a colored atmosphere halo (additive sprite using a
+  shared canvas-generated radial-gradient texture from `sun.js`).
+- Background-planet array lives in `client/src/three/config.js` as
+  `BACKGROUND_PLANETS`; built alongside the section planets in `main.js`
+  via the same `buildPlanet` helper.
 
 ### Sun
-- Centered backdrop at `(0, 0, -650/14)`. Textured with `sun.jpg`.
-- Glow + corona sprites with additive blending pulse on `sin(time)`.
-- Glow opacity ramps with scroll proximity (0.85 → 1.0).
-- Single `THREE.PointLight` at the sun's position is the scene's only
-  directional light (plus dim ambient).
+- Far + upper-right: position `(30, 18.6, -114.3)` (was `(0, 0, -46.4)`).
+- Larger radius (~12 vs ~6.4) and bigger glow / corona sprites — same
+  apparent size but with greater depth.
+- Glow opacity ramp capped at 0.55 → 0.70 (was 0.85 → 1.0) so the contact
+  section isn't bleached out.
+- Single `THREE.PointLight` at the sun's position is still the scene's
+  only directional light.
 
 ### Backdrop
-- 3500-point procedural starfield in a sphere-shell distribution with
-  subtle blue/yellow vertex tints.
-- 600-point nebula dust with warm/cool additive blending,
-  counter-rotating.
+- 3500-point procedural starfield (unchanged).
+- 600-point nebula dust (unchanged).
 - `stars_milkyway.jpg` skybox sphere at radius 200, `BackSide`,
-  opacity 0.45 — sits behind the procedural points for depth.
+  opacity 0.45 (unchanged).
 
 ### Camera
-- Sweeps Z from `+25` (start of page) to `-39` (end of page), driven by
-  smoothed window scroll (`scroll.js#getSmoothedScroll`, lerp 0.07).
-- Floats organically on `sin(time)*0.4` / `cos(time*0.7)*0.3` for a
-  hand-held feel.
-- Always looks at the sun's z position.
+- **Path:** quadratic Bezier P0=`(0,0,25)`, P1=`(-21,6,-17)`, P2=`(0,0,-58.6)`,
+  parametrised by smoothed scroll progress `t ∈ [0,1]`.
+- **Look-at:** the active section's planet, interpolated with smoothstep
+  easing as scroll moves between sections (was: always sun's Z).
+- Hand-held float (`sin(time)*0.4`, `cos(time*0.7)*0.3`) layered on top of
+  the Bezier position for an organic feel.
 
 ### HTML / sections
-- Five `<section>` blocks: `hero`, `about`, `skills`, `work`, `contact`.
-- Each section uses one of three layout modifiers: `.section--centered`
-  (hero, contact) or `.section--left` / `.section--right` (about,
-  skills, work). The left/right side is opposite the planet's
-  screen-space position so the content doesn't overlap the planet.
-- Each waypoint section uses the pattern: small uppercase eyebrow → light-weight heading → thin divider → body. Defined by `.waypoint` and
-  related rules in `client/src/styles/components/waypoint.css`.
-- Hero ends with a pulsing `↓ SCROLL ↓` cue.
-- Right-side dot navigation highlights the active section as you scroll
-  (the `IntersectionObserver` in `dom/sectionObserver.js`); clicking a
-  dot is a plain anchor scroll.
+- Unchanged from 2026-04-28. Five sections, same content layout modifiers
+  (`.section--centered` / `.section--left` / `.section--right`), same
+  dot navigation. Only the planet you see at each section changed.
 
-Design doc for this scene: `docs/superpowers/specs/2026-04-28-scene-redesign-design.md`.
-Plan: `docs/superpowers/plans/2026-04-28-scene-redesign.md`.
+Design doc for the redesign: `docs/superpowers/specs/2026-05-13-scene-redesign-design.md`.
+Plan: `docs/superpowers/plans/2026-05-13-scene-redesign.md`.
+Previous (rail-jump → continuous-sweep) doc: `docs/superpowers/specs/2026-04-28-scene-redesign-design.md`.
 
 ---
 
@@ -116,17 +114,20 @@ Original restructure design (folder layout): `docs/superpowers/specs/2026-04-27-
 
 ## Currently building
 
-*Nothing in progress.* Next up per the user's latest decision: a
-**scene redesign** — push the sun further (it currently overwhelms the
-contact section), add the three missing solar-system planets so the
-full eight (Mercury → Neptune) appear in real order, and rework the
-camera into a Bezier arc through the system instead of a straight Z
-sweep. Spec / plan to be written when work begins.
-
-The **AI chat widget** (Anthropic API) remains the post-scene-redesign
-priority per the "Highlight picks" — most memorable for visitors.
+*Nothing in progress.* Next up per the "Highlight picks" — the **AI chat
+widget** powered by the Anthropic API. Spec / plan to be written when
+work begins.
 
 ## Recently shipped
+
+- **Scene redesign** (2026-05-14) — Pushed the sun far + upper-right
+  (fixed contact-section glare), added Mercury / Venus / Uranus so all 8
+  real planets appear in real outer-to-inner order, replaced the straight
+  Z sweep with a quadratic Bezier camera arc, and switched lookAt from
+  the sun to the active section's planet with smoothstep easing between
+  sections. Spec:
+  `docs/superpowers/specs/2026-05-13-scene-redesign-design.md`. Plan:
+  `docs/superpowers/plans/2026-05-13-scene-redesign.md`.
 
 - **Projects showcase** (2026-05-11) — DB-backed projects list (replaces
   hardcoded `Work.js`), `/admin` dashboard with GitHub OAuth gating,
