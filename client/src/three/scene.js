@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CAMERA_START_Z, SUN_POSITION } from './config.js';
+import { CAMERA_BEZIER_P0, SUN_POSITION } from './config.js';
 
 const canvas = document.querySelector('#bg');
 
@@ -12,7 +12,7 @@ export const camera = new THREE.PerspectiveCamera(
   0.1,
   5000
 );
-camera.position.set(0, 0, CAMERA_START_Z);
+camera.position.copy(CAMERA_BEZIER_P0);
 
 export const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));

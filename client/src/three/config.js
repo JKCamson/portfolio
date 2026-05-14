@@ -64,9 +64,11 @@ export const SECTIONS = {
 
 export const SECTION_ORDER = ['hero', 'about', 'skills', 'work', 'contact'];
 
-// Camera sweep
-export const CAMERA_START_Z = 350 / 14;
-export const CAMERA_END_Z = -540 / 14;
+// Camera Bezier control points. Quadratic curve: P(t) = (1-t)²P0 + 2(1-t)tP1 + t²P2.
+// Swings left + up at midpoint, returns toward center near the sun zone.
+export const CAMERA_BEZIER_P0 = new THREE.Vector3(0, 0, 25);
+export const CAMERA_BEZIER_P1 = new THREE.Vector3(-21, 6, -17);
+export const CAMERA_BEZIER_P2 = new THREE.Vector3(0, 0, -58.6);
 
 // Sun — far + upper-right offset so the contact section isn't blown out
 export const SUN_POSITION = new THREE.Vector3(420 / 14, 260 / 14, -1600 / 14);
