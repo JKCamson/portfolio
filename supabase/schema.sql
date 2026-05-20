@@ -76,3 +76,44 @@ create policy "owner deletes screenshots"
   on storage.objects for delete
   using (bucket_id = 'project-screenshots'
          and auth.email() = 'jkylecadap@gmail.com');
+
+-- Skills table (added 2026-05-14). Owner-managed via /admin; rendered on
+-- the public Skills section unioned with project tech_stack/tags strings.
+
+create table skills (
+  id           uuid primary key default gen_random_uuid(),
+  name         text unique not null,
+  category     text not null check (category in (
+    'frameworks', 'languages', 'apis', 'testing', 'databases', 'tools'
+  )),
+  icon_url     text,
+  sort_order   int not null default 0,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+
+create index skills_category_idx on skills (category);
+create index skills_sort_idx on skills (sort_order asc, name asc);
+
+create trigger skills_set_updated_at
+  before update on skills
+  for each row execute function set_updated_at();
+
+alter table skills enable row level security;
+
+create policy "public reads all skills"
+  on skills for select
+  using (true);
+
+create policy "owner inserts skills"
+  on skills for insert
+  with check (auth.email() = 'jkylecadap@gmail.com');
+
+create policy "owner updates skills"
+  on skills for update
+  using (auth.email() = 'jkylecadap@gmail.com')
+  with check (auth.email() = 'jkylecadap@gmail.com');
+
+create policy "owner deletes skills"
+  on skills for delete
+  using (auth.email() = 'jkylecadap@gmail.com');
