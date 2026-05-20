@@ -2,7 +2,18 @@ import { supabase } from '../lib/supabase.js';
 
 const CATEGORY_ORDER = ['frameworks', 'languages', 'apis', 'testing', 'databases', 'tools', 'other'];
 
+const CATEGORY_LABELS = {
+  frameworks: 'Frameworks',
+  languages: 'Languages',
+  apis: 'APIs',
+  testing: 'Testing',
+  databases: 'Databases',
+  tools: 'Tools / DevOps',
+  other: 'Other',
+};
+
 let unionMap = new Map(); // key = name.toLowerCase()
+let activeTab = 'all';
 
 export async function initSkillsList() {
   const grid = document.querySelector('#skills-grid');
@@ -20,7 +31,9 @@ export async function initSkillsList() {
   }
 
   unionMap = buildUnion(skillsRes.data ?? [], projectsRes.data ?? []);
+  renderTabs();
   renderGrid();
+  attachTabHandler();
 }
 
 function buildUnion(skills, projects) {
@@ -53,6 +66,51 @@ function sortFn(a, b) {
   return a.name.localeCompare(b.name);
 }
 
+function hasOther() {
+  for (const s of unionMap.values()) {
+    if (s.category === 'other') return true;
+  }
+  return false;
+}
+
+function renderTabs() {
+  const tabs = document.querySelector('#skills-tabs');
+  if (!tabs) return;
+  if (!unionMap.size) {
+    tabs.hidden = true;
+    tabs.innerHTML = '';
+    return;
+  }
+  tabs.hidden = false;
+
+  const keys = ['all', 'frameworks', 'languages', 'apis', 'testing', 'databases', 'tools'];
+  if (hasOther()) keys.push('other');
+
+  tabs.innerHTML = keys.map(key => {
+    const label = key === 'all' ? 'All' : CATEGORY_LABELS[key];
+    const pressed = activeTab === key;
+    return `<button type="button" class="skills__tab" data-tab="${esc(key)}" aria-pressed="${pressed}">${esc(label)}</button>`;
+  }).join('');
+}
+
+function attachTabHandler() {
+  const tabs = document.querySelector('#skills-tabs');
+  if (!tabs) return;
+  tabs.addEventListener('click', (e) => {
+    const btn = e.target.closest('button.skills__tab');
+    if (!btn) return;
+    activeTab = btn.dataset.tab;
+    renderTabs();
+    renderGrid();
+  });
+}
+
+function visibleSkills() {
+  const arr = [...unionMap.values()];
+  if (activeTab === 'all') return arr.sort(sortFn);
+  return arr.filter(s => s.category === activeTab).sort(sortFn);
+}
+
 function renderGrid() {
   const grid = document.querySelector('#skills-grid');
   if (!grid) return;
@@ -63,7 +121,11 @@ function renderGrid() {
     return;
   }
 
-  const items = [...unionMap.values()].sort(sortFn);
+  const items = visibleSkills();
+  if (!items.length) {
+    grid.innerHTML = `<li class="skills__empty">No skills in this category.</li>`;
+    return;
+  }
   grid.innerHTML = items.map(card).join('');
   attachIconFallbacks(grid);
 }
