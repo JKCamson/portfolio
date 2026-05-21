@@ -83,7 +83,7 @@ function renderTabs() {
   }
   tabs.hidden = false;
 
-  const keys = ['all', 'frameworks', 'languages', 'apis', 'testing', 'databases', 'tools'];
+  const keys = ['all', ...CATEGORY_ORDER.filter(k => k !== 'other')];
   if (hasOther()) keys.push('other');
 
   tabs.innerHTML = keys.map(key => {
@@ -157,6 +157,3 @@ function attachIconFallbacks(root) {
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
-
-// CATEGORY_ORDER is exported for Task 4 (tab strip).
-export { CATEGORY_ORDER };
