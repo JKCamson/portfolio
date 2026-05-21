@@ -4,7 +4,7 @@ export const About = () => `
       <p class="eyebrow">01</p>
       <h2>About</h2>
       <div class="divider"></div>
-      <p>Short intro about you goes here. Talk about what you do, what you care about, and what you're building right now.</p>
+      <p>I am a software developer with a passion for building and developing web and mobile applications. I am a quick learner and I am always looking to improve my skills.</p>
     </div>
   </section>
 `;
