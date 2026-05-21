@@ -30,8 +30,7 @@ export function renderSkillsAdmin(mountNode) {
     renderSkillForm(mountNode, null, () => renderSkillsAdmin(mountNode));
   });
   mountNode.querySelector('#scan-projects').addEventListener('click', () => {
-    // Scan wired in Task 8.
-    alert('Scan not implemented yet — Task 8.');
+    handleScan(mountNode);
   });
 
   loadAndRenderList(mountNode);
@@ -108,6 +107,67 @@ async function handleDelete(mountNode, id, name) {
     return;
   }
   await loadAndRenderList(mountNode);
+}
+
+async function handleScan(mountNode) {
+  const result = mountNode.querySelector('#scan-result');
+  const errorBox = mountNode.querySelector('#skills-error');
+  errorBox.innerHTML = '';
+  result.innerHTML = `<p style="color:var(--muted);">Scanning projects…</p>`;
+
+  const { data: projects, error } = await supabase
+    .from('projects')
+    .select('tech_stack,tags')
+    .eq('published', true);
+
+  if (error) {
+    result.innerHTML = '';
+    errorBox.innerHTML = `<p class="error">Scan failed: ${esc(error.message)}</p>`;
+    return;
+  }
+
+  const existing = new Set(cachedSkills.map(s => s.name.toLowerCase()));
+  const seen = new Map(); // lowerName -> originalName (first occurrence wins)
+
+  for (const p of projects ?? []) {
+    const strings = [...(p.tech_stack ?? []), ...(p.tags ?? [])];
+    for (const raw of strings) {
+      const name = String(raw ?? '').trim();
+      if (!name) continue;
+      const key = name.toLowerCase();
+      if (existing.has(key)) continue;
+      if (seen.has(key)) continue;
+      seen.set(key, name);
+    }
+  }
+
+  renderScanResult(mountNode, [...seen.values()].sort((a, b) => a.localeCompare(b)));
+}
+
+function renderScanResult(mountNode, missing) {
+  const result = mountNode.querySelector('#scan-result');
+  if (!missing.length) {
+    result.innerHTML = `<p style="color:var(--muted);">No missing skills — all project tech is in the skills table.</p>`;
+    return;
+  }
+
+  result.innerHTML = `
+    <p style="color:var(--muted); margin-top:1rem;">${missing.length} name${missing.length === 1 ? '' : 's'} from project tech_stack / tags not in the skills table:</p>
+    <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:0.4rem;">
+      ${missing.map(name => `
+        <li style="display:flex; gap:0.6rem; align-items:center;">
+          <span style="flex:1;">${esc(name)}</span>
+          <button class="secondary" data-action="add-missing" data-name="${esc(name)}">Add</button>
+        </li>
+      `).join('')}
+    </ul>
+  `;
+
+  result.querySelectorAll('button[data-action="add-missing"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      renderSkillForm(mountNode, null, () => renderSkillsAdmin(mountNode), btn.dataset.name);
+    });
+  });
 }
 
 function esc(s) {
