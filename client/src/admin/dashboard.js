@@ -1,33 +1,62 @@
 import { supabase } from '../lib/supabase.js';
 import { renderProjectForm } from './projectForm.js';
+import { renderSkillsAdmin } from './skillsAdmin.js';
 
 let cachedProjects = [];
+let currentView = 'projects'; // 'projects' | 'skills'
 
 export async function renderDashboard(mountNode) {
   mountNode.innerHTML = `
-    <header style="display:flex; justify-content:space-between; align-items:center;">
-      <h1>Projects</h1>
-      <div>
-        <button id="new-project">+ New project</button>
-        <button id="signout" class="secondary">Sign out</button>
-      </div>
-    </header>
-    <div id="dashboard-error"></div>
-    <div id="dashboard-body"><p>Loading…</p></div>
+    <nav class="admin-nav" style="display:flex; gap:0.5rem; align-items:center; margin-bottom:1.5rem;">
+      <button id="nav-projects" class="${currentView === 'projects' ? '' : 'secondary'}">Projects</button>
+      <button id="nav-skills" class="${currentView === 'skills' ? '' : 'secondary'}">Skills</button>
+      <div style="flex:1;"></div>
+      <button id="signout" class="secondary">Sign out</button>
+    </nav>
+    <div id="view-mount"></div>
   `;
 
   mountNode.querySelector('#signout').addEventListener('click', async () => {
     await supabase.auth.signOut();
   });
 
-  mountNode.querySelector('#new-project').addEventListener('click', () => {
-    renderProjectForm(mountNode, null, () => renderDashboard(mountNode));
+  mountNode.querySelector('#nav-projects').addEventListener('click', () => {
+    currentView = 'projects';
+    renderDashboard(mountNode);
+  });
+  mountNode.querySelector('#nav-skills').addEventListener('click', () => {
+    currentView = 'skills';
+    renderDashboard(mountNode);
   });
 
-  await loadAndRenderList(mountNode);
+  const view = mountNode.querySelector('#view-mount');
+  if (currentView === 'projects') {
+    await renderProjectsView(view);
+  } else {
+    renderSkillsAdmin(view);
+  }
 }
 
-async function loadAndRenderList(mountNode) {
+async function renderProjectsView(mountNode) {
+  mountNode.innerHTML = `
+    <header style="display:flex; justify-content:space-between; align-items:center;">
+      <h1>Projects</h1>
+      <div>
+        <button id="new-project">+ New project</button>
+      </div>
+    </header>
+    <div id="dashboard-error"></div>
+    <div id="dashboard-body"><p>Loading…</p></div>
+  `;
+
+  mountNode.querySelector('#new-project').addEventListener('click', () => {
+    renderProjectForm(mountNode, null, () => renderProjectsView(mountNode));
+  });
+
+  await loadAndRenderProjectsList(mountNode);
+}
+
+async function loadAndRenderProjectsList(mountNode) {
   const body = mountNode.querySelector('#dashboard-body');
   const errorBox = mountNode.querySelector('#dashboard-error');
   errorBox.innerHTML = '';
@@ -80,18 +109,18 @@ async function loadAndRenderList(mountNode) {
   `;
 
   body.querySelectorAll('button[data-action="delete"]').forEach(btn => {
-    btn.addEventListener('click', () => handleDelete(mountNode, btn.dataset.id, btn.dataset.title));
+    btn.addEventListener('click', () => handleProjectDelete(mountNode, btn.dataset.id, btn.dataset.title));
   });
   body.querySelectorAll('button[data-action="edit"]').forEach(btn => {
     btn.addEventListener('click', () => {
       const project = cachedProjects.find(p => p.id === btn.dataset.id);
       if (!project) return;
-      renderProjectForm(mountNode, project, () => renderDashboard(mountNode));
+      renderProjectForm(mountNode, project, () => renderProjectsView(mountNode));
     });
   });
 }
 
-async function handleDelete(mountNode, id, title) {
+async function handleProjectDelete(mountNode, id, title) {
   if (!confirm(`Delete "${title}"?`)) return;
   const errorBox = mountNode.querySelector('#dashboard-error');
   const { error } = await supabase.from('projects').delete().eq('id', id);
@@ -99,7 +128,7 @@ async function handleDelete(mountNode, id, title) {
     errorBox.innerHTML = `<p class="error">Delete failed: ${escapeText(error.message)}</p>`;
     return;
   }
-  await loadAndRenderList(mountNode);
+  await loadAndRenderProjectsList(mountNode);
 }
 
 function escapeText(s) {

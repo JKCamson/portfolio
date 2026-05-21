@@ -92,14 +92,19 @@ functions; one file = one endpoint). Inside `client/src/`:
 - `dom/` — DOM-only behavior (no Three.js, no markup): `sectionObserver.js`
   (dot active-state + section fade-in), `contactForm.js` (contact form
   state machine + fetch to `/api/contact`), `projectsList.js` (public
-  projects fetch from Supabase + tag-pill filtering).
+  projects fetch from Supabase + tag-pill filtering), `skillsList.js`
+  (public Skills section: union of skills table + project tech_stack/tags,
+  tab strip + icon-card grid).
 - `lib/` — shared library clients. `supabase.js` exports a single
   `createClient` instance using `VITE_SUPABASE_URL` and
   `VITE_SUPABASE_PUBLISHABLE_KEY`.
 - `admin/` — admin-dashboard-only modules: `auth.js` (GitHub OAuth +
-  owner-email gate), `dashboard.js` (list view + delete), `projectForm.js`
-  (create/edit form, GitHub repo prefill, screenshot upload), and
-  `styles/admin.css`. Loaded only by the `/admin.html` entry.
+  owner-email gate), `dashboard.js` (Projects/Skills top-nav + projects
+  list/delete), `projectForm.js` (create/edit form, GitHub repo prefill,
+  screenshot upload), `skillsAdmin.js` (skills list/delete + scan-projects
+  helper), `skillForm.js` (create/edit skill with devicon slug helper +
+  live preview), and `styles/admin.css`. Loaded only by the `/admin.html`
+  entry.
 - `pages/` — multi-page Vite entries. `admin.js` boots `admin.html`,
   initializes admin auth + dashboard. No Three.js on this page.
 - `styles/` — CSS split per concern: `base.css` (vars, reset,
@@ -119,6 +124,17 @@ widget** powered by the Anthropic API. Spec / plan to be written when
 work begins.
 
 ## Recently shipped
+
+- **Skills section** (2026-05-21) — Replaced the hardcoded `<ul>` with a
+  dynamic, category-tabbed icon grid. Source = union of a new Supabase
+  `skills` table (owner-managed via `/admin`) + every `tech_stack` /
+  `tags` string from published projects. Devicon icons via jsDelivr;
+  admin form has a "Devicon slug" helper that auto-builds the canonical
+  URL. Admin dashboard gained a Projects/Skills top-nav toggle and a
+  "scan projects for missing skills" one-click importer. Public Skills
+  section flips to `.section--left` with a 36rem waypoint. Spec:
+  `docs/superpowers/specs/2026-05-14-skills-section-design.md`. Plan:
+  `docs/superpowers/plans/2026-05-14-skills-section.md`.
 
 - **Scene redesign** (2026-05-14) — Pushed the sun far + upper-right
   (fixed contact-section glare), added Mercury / Venus / Uranus so all 8
