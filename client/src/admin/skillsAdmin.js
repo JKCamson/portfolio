@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase.js';
+import { renderSkillForm } from './skillForm.js';
 
 const CATEGORY_LABELS = {
   frameworks: 'Frameworks',
@@ -26,8 +27,7 @@ export function renderSkillsAdmin(mountNode) {
   `;
 
   mountNode.querySelector('#new-skill').addEventListener('click', () => {
-    // Form wired in Task 7.
-    alert('Skill form not implemented yet — Task 7.');
+    renderSkillForm(mountNode, null, () => renderSkillsAdmin(mountNode));
   });
   mountNode.querySelector('#scan-projects').addEventListener('click', () => {
     // Scan wired in Task 8.
@@ -92,8 +92,9 @@ async function loadAndRenderList(mountNode) {
   });
   body.querySelectorAll('button[data-action="edit"]').forEach(btn => {
     btn.addEventListener('click', () => {
-      // Edit wired in Task 7.
-      alert('Skill form not implemented yet — Task 7.');
+      const skill = cachedSkills.find(s => s.id === btn.dataset.id);
+      if (!skill) return;
+      renderSkillForm(mountNode, skill, () => renderSkillsAdmin(mountNode));
     });
   });
 }
