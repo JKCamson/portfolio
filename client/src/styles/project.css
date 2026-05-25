@@ -1,0 +1,21 @@
+@import "./base.css";
+
+.project-detail {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+}
+.project-detail__back {
+  display: inline-block;
+  margin-bottom: 2rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+.project-detail__state {
+  color: rgba(255, 255, 255, 0.6);
+  padding: 4rem 2rem;
+  text-align: center;
+}
+.project-detail__error {
+  color: rgba(255, 110, 110, 0.85);
+}
