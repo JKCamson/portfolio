@@ -74,6 +74,9 @@ export function renderProjectForm(mountNode, project, onDone) {
         <button type="submit" id="save">${isEdit ? 'Save changes' : 'Create project'}</button>
       </div>
     </form>
+    ${isEdit
+      ? `<section id="gallery-section" style="margin-top:32px; border-top:1px solid var(--border); padding-top:24px;"></section>`
+      : `<p style="margin-top:24px; color:var(--muted); font-size:13px;">Save the project first, then re-open it to add screenshots.</p>`}
   `;
 
   mountNode.querySelector('#cancel').addEventListener('click', () => onDone());
@@ -82,6 +85,8 @@ export function renderProjectForm(mountNode, project, onDone) {
     await handleSubmit(mountNode, project, onDone);
   });
   mountNode.querySelector('#gh-fetch').addEventListener('click', () => handleGitHubFetch(mountNode));
+
+  if (isEdit) initGallery(mountNode, project.id);
 }
 
 async function handleGitHubFetch(mountNode) {
@@ -243,6 +248,132 @@ function splitList(raw) {
 function nullIfBlank(raw) {
   const s = String(raw ?? '').trim();
   return s.length ? s : null;
+}
+
+let galleryRows = [];
+
+async function initGallery(mountNode, projectId) {
+  const section = mountNode.querySelector('#gallery-section');
+  if (!section) return;
+  section.innerHTML = `
+    <h2 style="font-size:18px; margin:0 0 12px;">Screenshots gallery</h2>
+    <div id="gallery-error"></div>
+    <div id="gallery-list">Loading…</div>
+    <div style="margin-top:12px;">
+      <label for="gallery-files">Add screenshots (jpg/png/webp, max 5 MB each)</label>
+      <input id="gallery-files" type="file" accept="image/jpeg,image/png,image/webp" multiple />
+      <button type="button" id="gallery-upload" class="secondary" style="margin-top:8px;">Upload</button>
+    </div>
+  `;
+  section.querySelector('#gallery-upload').addEventListener('click', () => handleGalleryUpload(mountNode, projectId));
+  await loadGalleryList(mountNode, projectId);
+}
+
+async function loadGalleryList(mountNode, projectId) {
+  const listEl = mountNode.querySelector('#gallery-list');
+  const { data, error } = await supabase
+    .from('project_screenshots')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('sort_order')
+    .order('created_at');
+  if (error) {
+    listEl.innerHTML = `<p class="error">Failed to load gallery: ${esc(error.message)}</p>`;
+    return;
+  }
+  galleryRows = data ?? [];
+  if (!galleryRows.length) {
+    listEl.innerHTML = `<p style="color:var(--muted)">No screenshots yet.</p>`;
+    return;
+  }
+  listEl.innerHTML = galleryRows.map(galleryRowHtml).join('');
+  listEl.querySelectorAll('button[data-action="save-shot"]').forEach((btn) => {
+    btn.addEventListener('click', () => saveShot(mountNode, projectId, btn.dataset.id));
+  });
+  listEl.querySelectorAll('button[data-action="delete-shot"]').forEach((btn) => {
+    btn.addEventListener('click', () => deleteShot(mountNode, projectId, btn.dataset.id, btn.dataset.url));
+  });
+}
+
+function galleryRowHtml(s) {
+  return `
+    <div class="gallery-row" data-id="${s.id}" style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+      <img src="${esc(s.url)}" alt="" style="width:64px; height:40px; object-fit:cover; border-radius:3px;" />
+      <input type="text" data-field="caption" placeholder="Caption" value="${esc(s.caption ?? '')}" style="flex:1;" />
+      <input type="number" data-field="order" value="${s.sort_order}" style="width:70px;" />
+      <button type="button" class="secondary" data-action="save-shot" data-id="${s.id}">Save</button>
+      <button type="button" class="danger" data-action="delete-shot" data-id="${s.id}" data-url="${esc(s.url)}">Delete</button>
+    </div>
+  `;
+}
+
+async function saveShot(mountNode, projectId, id) {
+  const row = mountNode.querySelector(`.gallery-row[data-id="${id}"]`);
+  const caption = row.querySelector('[data-field="caption"]').value.trim();
+  const sort_order = Number(row.querySelector('[data-field="order"]').value ?? 0) | 0;
+  const errorBox = mountNode.querySelector('#gallery-error');
+  const { error } = await supabase
+    .from('project_screenshots')
+    .update({ caption: caption || null, sort_order })
+    .eq('id', id);
+  if (error) {
+    errorBox.innerHTML = `<p class="error">Save failed: ${esc(error.message)}</p>`;
+    return;
+  }
+  errorBox.innerHTML = '';
+  await loadGalleryList(mountNode, projectId);
+}
+
+async function deleteShot(mountNode, projectId, id, url) {
+  if (!confirm('Delete this screenshot?')) return;
+  const errorBox = mountNode.querySelector('#gallery-error');
+  const { error } = await supabase.from('project_screenshots').delete().eq('id', id);
+  if (error) {
+    errorBox.innerHTML = `<p class="error">Delete failed: ${esc(error.message)}</p>`;
+    return;
+  }
+  const m = String(url).match(/\/project-screenshots\/(.+)$/);
+  if (m) {
+    const cleanup = await supabase.storage.from('project-screenshots').remove([m[1]]);
+    if (cleanup.error) console.warn('Screenshot file cleanup failed (non-fatal):', cleanup.error.message);
+  }
+  await loadGalleryList(mountNode, projectId);
+}
+
+async function handleGalleryUpload(mountNode, projectId) {
+  const input = mountNode.querySelector('#gallery-files');
+  const errorBox = mountNode.querySelector('#gallery-error');
+  errorBox.innerHTML = '';
+  const files = [...(input.files ?? [])];
+  if (!files.length) return;
+
+  const slug = (mountNode.querySelector('#slug')?.value || 'project').trim() || 'project';
+  const baseOrder = galleryRows.length ? Math.max(...galleryRows.map((r) => r.sort_order)) + 1 : 0;
+
+  const failures = [];
+  let added = 0;
+  for (const file of files) {
+    if (file.size > 5 * 1024 * 1024) { failures.push(`${file.name} (too large)`); continue; }
+    const ext = extFromMime(file.type);
+    if (!ext) { failures.push(`${file.name} (unsupported type)`); continue; }
+    const filename = `${slug}-${Date.now()}-${added}.${ext}`;
+    const up = await supabase.storage.from('project-screenshots').upload(filename, file, { contentType: file.type });
+    if (up.error) { failures.push(`${file.name} (${up.error.message})`); continue; }
+    const url = supabase.storage.from('project-screenshots').getPublicUrl(filename).data.publicUrl;
+    const ins = await supabase.from('project_screenshots').insert({
+      project_id: projectId,
+      url,
+      caption: null,
+      sort_order: baseOrder + added,
+    });
+    if (ins.error) { failures.push(`${file.name} (${ins.error.message})`); continue; }
+    added += 1;
+  }
+  if (failures.length) {
+    errorBox.innerHTML = `<p class="error">Some uploads failed: ${esc(failures.join(', '))}</p>`;
+  }
+  input.value = '';
+  await loadGalleryList(mountNode, projectId);
 }
 
 function esc(s) {
