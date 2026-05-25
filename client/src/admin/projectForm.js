@@ -253,6 +253,7 @@ function nullIfBlank(raw) {
 let galleryRows = [];
 
 async function initGallery(mountNode, projectId) {
+  galleryRows = [];
   const section = mountNode.querySelector('#gallery-section');
   if (!section) return;
   section.innerHTML = `

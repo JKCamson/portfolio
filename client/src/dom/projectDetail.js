@@ -50,6 +50,7 @@ function renderNotFound(mountNode) {
 }
 
 function render(mountNode, p, shots) {
+  document.title = `${p.title} — Portfolio`;
   const cover = p.screenshot_url
     ? `<img class="project-detail__cover" src="${esc(p.screenshot_url)}" alt="${esc(p.title)} screenshot" />`
     : `<div class="project-detail__cover project-detail__cover--fallback"></div>`;

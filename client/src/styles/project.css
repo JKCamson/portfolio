@@ -45,6 +45,7 @@
   font-size: 0.8125rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  color: var(--accent);
 }
 .project-detail__desc {
   line-height: 1.7;
