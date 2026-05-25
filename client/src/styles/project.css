@@ -70,3 +70,65 @@
   border-radius: 4px;
   color: rgba(255, 255, 255, 0.78);
 }
+
+.project-detail__gallery-heading {
+  font-size: 1.1rem;
+  font-weight: 400;
+  margin: 0 0 1rem;
+}
+.project-detail__gallery {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+.project-detail__shot img {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+  cursor: zoom-in;
+}
+.project-detail__caption {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+}
+.lightbox[hidden] {
+  display: none;
+}
+.lightbox__img {
+  max-width: 90vw;
+  max-height: 80vh;
+  border-radius: 8px;
+}
+.lightbox__caption {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+}
+.lightbox__close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
