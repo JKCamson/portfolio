@@ -87,14 +87,16 @@ functions; one file = one endpoint). Inside `client/src/`:
 - `components/` — page sections as JS template functions returning HTML
   strings (`Hero.js`, `About.js`, `Skills.js`, `Work.js`, `Contact.js`,
   `Nav.js`).
-- `partials/` — small reusable HTML atoms (buttons, cards, badges).
-  Empty for now; documented in its README.
+- `partials/` — small reusable HTML atoms. `ProjectCard.js` renders the
+  shared project card used by both the Work teaser and the `/projects`
+  listing (links to the detail page).
 - `dom/` — DOM-only behavior (no Three.js, no markup): `sectionObserver.js`
   (dot active-state + section fade-in), `contactForm.js` (contact form
-  state machine + fetch to `/api/contact`), `projectsList.js` (public
-  projects fetch from Supabase + tag-pill filtering), `skillsList.js`
-  (public Skills section: union of skills table + project tech_stack/tags,
-  tab strip + icon-card grid).
+  state machine + fetch to `/api/contact`), `projectsList.js` (Work-section
+  featured teaser), `projectsPage.js` (the `/projects` full listing),
+  `projectDetail.js` (the `/projects/<slug>` detail page + screenshot
+  lightbox), `skillsList.js` (public Skills section: admin-managed skills
+  table, tab strip + icon-card grid).
 - `lib/` — shared library clients. `supabase.js` exports a single
   `createClient` instance using `VITE_SUPABASE_URL` and
   `VITE_SUPABASE_PUBLISHABLE_KEY`.
@@ -105,8 +107,10 @@ functions; one file = one endpoint). Inside `client/src/`:
   helper), `skillForm.js` (create/edit skill with devicon slug helper +
   live preview), and `styles/admin.css`. Loaded only by the `/admin.html`
   entry.
-- `pages/` — multi-page Vite entries. `admin.js` boots `admin.html`,
-  initializes admin auth + dashboard. No Three.js on this page.
+- `pages/` — multi-page Vite entries. `admin.js` boots `admin.html`;
+  `projects.js` boots `projects.html` (the `/projects` listing);
+  `project.js` boots `project.html` (the `/projects/<slug>` detail page).
+  No Three.js on these pages.
 - `styles/` — CSS split per concern: `base.css` (vars, reset,
   scrollbar), `layout.css` (sections, modifiers, headings), `nav.css`
   (dots), `components/{hero,skills,projects,contact,waypoint}.css`.
@@ -124,6 +128,16 @@ widget** powered by the Anthropic API. Spec / plan to be written when
 work begins.
 
 ## Recently shipped
+
+- **Project pages** (2026-05-25) — Added a `/projects` listing page and
+  per-project `/projects/<slug>` detail pages (cover, full description,
+  captioned screenshot gallery with lightbox, tech, links), both pretty
+  routes via `vercel.json` rewrites. The main-page Work section became a
+  featured teaser linking to `/projects`, and a shared `partials/
+  ProjectCard.js` renders cards in both. New `project_screenshots` table
+  (published-gated RLS) with admin gallery management in the project form.
+  Spec: `docs/superpowers/specs/2026-05-25-project-detail-page-design.md`.
+  Plan: `docs/superpowers/plans/2026-05-25-project-pages.md`.
 
 - **Skills section** (2026-05-21) — Replaced the hardcoded `<ul>` with a
   dynamic, category-tabbed icon grid. Source = union of a new Supabase
