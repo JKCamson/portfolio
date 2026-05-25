@@ -102,3 +102,11 @@
 .projects__error {
   color: rgba(255, 110, 110, 0.85);
 }
+
+.projects__title-link {
+  color: inherit;
+  text-decoration: none;
+}
+.projects__title-link:hover {
+  text-decoration: underline;
+}
