@@ -110,3 +110,14 @@
 .projects__title-link:hover {
   text-decoration: underline;
 }
+
+.projects__viewall {
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.7);
+}
+.projects__viewall:hover {
+  color: rgba(255, 255, 255, 0.95);
+}
