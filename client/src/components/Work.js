@@ -4,7 +4,6 @@ export const Work = () => `
       <p class="eyebrow">03</p>
       <h2>Work</h2>
       <div class="divider"></div>
-      <div id="projects-pills" class="projects__pills" hidden></div>
       <ul id="projects-list" class="projects" aria-busy="true">
         <li class="projects__loading">Loading…</li>
       </ul>
