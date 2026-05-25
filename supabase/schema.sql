@@ -117,3 +117,46 @@ create policy "owner updates skills"
 create policy "owner deletes skills"
   on skills for delete
   using (auth.email() = 'jkylecadap@gmail.com');
+
+-- Project screenshots gallery (added 2026-05-25). One row per additional
+-- screenshot on a project's detail page; the cover stays in
+-- projects.screenshot_url.
+
+create table project_screenshots (
+  id           uuid primary key default gen_random_uuid(),
+  project_id   uuid not null references projects (id) on delete cascade,
+  url          text not null,
+  caption      text,
+  sort_order   int not null default 0,
+  created_at   timestamptz not null default now()
+);
+
+create index project_screenshots_project_idx
+  on project_screenshots (project_id, sort_order asc);
+
+alter table project_screenshots enable row level security;
+
+create policy "public reads screenshots of published projects"
+  on project_screenshots for select
+  using (exists (
+    select 1 from projects p
+    where p.id = project_screenshots.project_id
+      and p.published = true
+  ));
+
+create policy "owner reads all screenshots"
+  on project_screenshots for select
+  using (auth.email() = 'jkylecadap@gmail.com');
+
+create policy "owner inserts screenshots rows"
+  on project_screenshots for insert
+  with check (auth.email() = 'jkylecadap@gmail.com');
+
+create policy "owner updates screenshots rows"
+  on project_screenshots for update
+  using (auth.email() = 'jkylecadap@gmail.com')
+  with check (auth.email() = 'jkylecadap@gmail.com');
+
+create policy "owner deletes screenshots rows"
+  on project_screenshots for delete
+  using (auth.email() = 'jkylecadap@gmail.com');
