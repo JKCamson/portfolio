@@ -7,3 +7,5 @@ test.md
 test-2.md
 .superpowers/
 .claude/
+.env.local
+.env
